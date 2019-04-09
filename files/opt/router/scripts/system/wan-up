@@ -33,6 +33,6 @@ ip route add 10.178.0.0/16 via $GATEWAY dev ppp0 2>/dev/null
 /opt/router/scripts/system/irq-affinity
 
 service miniupnpd restart
-service wide-dhcpv6-client restart
+#service wide-dhcpv6-client restart
 
 exit 0

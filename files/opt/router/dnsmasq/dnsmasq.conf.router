@@ -14,9 +14,10 @@ dhcp-option=6,192.168.2.1
 dhcp-option=option6:dns-server,[fe80::]
 
 # Interface lan0
-dhcp-range=tag:dhcp-iptv,set:dns-iptv,192.168.2.10,192.168.2.19
-dhcp-range=192.168.2.20,192.168.2.254
-dhcp-range=::1000,::FFFF,constructor:lan0,ra-names,slaac
+#dhcp-range=tag:dhcp-iptv,set:dns-iptv,192.168.2.10,192.168.2.19
+#dhcp-range=tag:dhcp-iot,192.168.2.20,192.168.2.49
+dhcp-range=192.168.2.10,192.168.2.254
+#dhcp-range=::1000,::FFFF,constructor:lan0,ra-names,slaac
 
 # RA
 enable-ra

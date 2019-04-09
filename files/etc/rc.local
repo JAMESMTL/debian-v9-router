@@ -17,6 +17,5 @@ echo 65536 > /sys/module/nf_conntrack/parameters/hashsize
 
 # Assign CPU affinity
 /opt/router/scripts/irq-affinity
-#sleep 65 && /opt/router/scripts/irq-affinity &
 
 exit 0
