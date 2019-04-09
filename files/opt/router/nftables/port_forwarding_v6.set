@@ -1,0 +1,8 @@
+# IPv6 port forwarding set
+# Format: ip,proto:ports
+# proto = tcp or udp
+# ports = port number or port range
+# example: add -! HOSTS-V6 2001:db8:100:1::80,tcp:80
+# example: add -! HOSTS-V6 2001:db8:100:1::80,tcp:8000-8080
+
+# add -! HOSTS-V6 2001:db8:100:1::80,tcp:8000-8080

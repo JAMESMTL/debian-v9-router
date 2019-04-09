@@ -1,0 +1,43 @@
+#!/bin/bash
+
+TOTALCPU=$(grep -c processor /proc/cpuinfo)
+
+if [ "$TOTALCPU" -lt 2 ]; then
+
+	logger -t irq-affinity[$$] -p daemon.info only ${TOTALCPU} CPU skipping
+	exit 0
+fi
+
+INTERFACE=wan0
+
+# set interface to first cpu
+grep -E "${INTERFACE}$" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+	printf "%x\n" 1 > /proc/irq/${INTERRUPT}/smp_affinity
+done
+
+# set each queue to a cpu
+cat /proc/cpuinfo | grep processor | awk '{ print $3 }' | while read CPU; do
+	grep -E "${INTERFACE}-[a-zA-Z0-9]*-${CPU}" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+		printf "%x\n" $(( 2 ** $CPU )) > /proc/irq/${INTERRUPT}/smp_affinity
+	done
+done
+
+INTERFACE=lan0
+
+# set interface to last cpu
+grep -E "${INTERFACE}$" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+	printf "%x\n" $(( 2 ** ($TOTALCPU - 1) )) > /proc/irq/${INTERRUPT}/smp_affinity
+done
+
+
+# set each queue to a cpu reversed
+cat /proc/cpuinfo | grep processor | awk '{ print $3 }' | while read CPU; do
+	grep -E "${INTERFACE}-[a-zA-Z0-9]*-${CPU}" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+		printf "%x\n" $(( 2 ** ($TOTALCPU - 1 - $CPU) )) > /proc/irq/${INTERRUPT}/smp_affinity
+	done
+done
+
+
+logger -t irq-affinity[$$] -p daemon.info set affinity of network adapters
+
+exit 0

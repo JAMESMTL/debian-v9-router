@@ -1,0 +1,45 @@
+#!/bin/sh
+
+##########################################
+# USER CONFIGS
+##########################################
+
+port_forwarding_v4_set=/opt/router/nftables/port_forwarding_v4.set
+port_forwarding_v4_nat=/opt/router/nftables/port_forwarding_v4.nat
+port_forwarding_v6_set=/opt/router/nftables/port_forwarding_v6.set
+
+##########################################
+# END USER CONFIGS
+##########################################
+
+echo "# Dynamically generated file - do not edit manually" > $port_forwarding_v4_nat
+echo "*nat" >> $port_forwarding_v4_nat
+
+# Parse IPv4 forwarding set
+while read line || [ -n "$line" ]; do
+
+	# skip blank lines and comments
+	echo $line | egrep -q '(^#|^$)' && continue
+
+	rule=$(echo $line | awk '{print $NF}')
+
+	addr=$(echo $rule | awk -F ',' '{print $1}')
+	proto=$(echo $rule | awk -F ',' '{print $2}' | awk -F ':' '{print $1}')
+	ports=$(echo $rule | awk -F ',' '{print $2}' | awk -F ':' '{print $2}')
+
+	# skip incomplete lines
+	[ -z "$addr" ] || [ -z "$proto" ] || [ -z "$ports" ] && continue
+
+	echo -A HOSTS -p ${proto} --dport $(echo $ports | sed 's/-/:/g') -j DNAT --to ${addr}:${ports} >> $port_forwarding_v4_nat
+
+done < $port_forwarding_v4_set
+
+echo "COMMIT" >> $port_forwarding_v4_nat
+
+# restore port forwarding rules
+ipset restore < $port_forwarding_v4_set
+ipset restore < $port_forwarding_v6_set
+
+# restore port forwarding nat rules
+iptables -t nat -F HOSTS
+iptables-restore -n < $port_forwarding_v4_nat

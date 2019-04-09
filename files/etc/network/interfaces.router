@@ -1,0 +1,75 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+#
+# interface configuration see https://wiki.debian.org/NetworkConfiguration
+# and https://manpages.debian.org/stretch/ifupdown/interfaces.5.en.html
+# pppd config see https://ppp.samba.org/pppd.html
+# dhcpv6-pd via wide-dhcpv6-client see https://manpages.debian.org/stretch/wide-dhcpv6-client/dhcp6c.conf.5.en.html
+# dhcpv6-pd via isc dhclient see https://wiki.debian.org/IPv6PrefixDelegation (alternet method)
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# WAN physical interface
+allow-hotplug wan0
+iface wan0 inet manual
+	pre-up ipset restore < /opt/router/nftables/ipsets.set
+	pre-up iptables-restore /opt/router/nftables/iptables.conf
+	pre-up ip6tables-restore /opt/router/nftables/ip6tables.conf
+	pre-up ifconfig wan0 mtu 1508
+	pre-up echo 1 > /proc/sys/net/ipv6/conf/wan0/disable_ipv6
+
+# WAN internet interface pppoe (vlan 35)
+auto wan0.35
+iface wan0.35 inet ppp
+	pre-up echo 1 > /proc/sys/net/ipv6/conf/wan0.35/disable_ipv6
+	pre-up /sbin/ip link set dev wan0.35 up
+	provider pppoe.conf
+	post-down /sbin/ip link set dev wan0.35 down
+
+# WAN IPTV interface dhcp (vlan 36)
+# auto wan0.36
+# iface wan0.36 inet dhcp
+#	pre-up echo 1 > /proc/sys/net/ipv6/conf/wan0.36/disable_ipv6
+#	pre-up echo 2 > /proc/sys/net/ipv4/conf/wan0.36/rp_filter
+#	up ip route add 10.0.0.0/8 via $(cat /tmp/sysvars/iptv-gateway) dev wan0.36 2>/dev/null
+#	down ip route del 10.0.0.0/8 via $(cat /tmp/sysvars/iptv-gateway) dev wan0.36 2>/dev/null
+
+# LAN primary interface
+allow-hotplug lan0
+iface lan0 inet static
+address 192.168.2.1
+netmask 255.255.255.0
+# iface lan0 inet6 static
+# address 2001:db8:100:1::1
+# netmask 64
+	up /opt/router/scripts/services/dnsmasq-router
+#	up ip -6 route add 2001:db8:100:1::/64 dev lan0 table he-net
+#	down ip -6 route del 2001:db8:100:1::/64 dev lan0 table he-net
+
+# LAN secondary interface (vlan 10)
+# auto lan0.10
+# iface lan0.10 inet static
+# address 192.168.10.1
+# netmask 255.255.255.0
+# iface lan0.10 inet6 static
+# address 2001:db8:100:10::1
+# netmask 64
+#	up ip -6 route add 2001:db8:100:10::/64 dev lan0.10 table he-net
+#	down ip -6 route del 2001:db8:100:10::/64 dev lan0.10 table he-net
+
+# HE.net IPv6 6in4 tunnel interface
+# auto he-net
+# iface he-net inet6 v4tunnel
+# address 2001:db8:1:1::2
+# netmask 64
+# endpoint 216.66.38.58
+# ttl 64
+# mtu 1480
+#	up ip -6 route add default dev he-net table he-net
+#	up ip -6 rule add from 2001:db8:100::/48 table he-net
+#	down ip -6 rule del from 2001:db8:100::/48 table he-net
+#	down ip -6 route del default dev he-net table he-net

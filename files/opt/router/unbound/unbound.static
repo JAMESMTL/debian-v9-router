@@ -1,0 +1,6 @@
+# Static dns rules
+#
+# Ex. split dns for ddns host
+#
+# local-zone: "yourhostname.noip.com." redirect
+# local-data: "yourhostname.noip.com. A 192.168.2.80"

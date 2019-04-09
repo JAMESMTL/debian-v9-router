@@ -1,0 +1,9 @@
+# Defaults for dhcpv6 client initscript
+# Used by /etc/init.d/wide-dhcpv6-client
+
+# Interfaces on which the client should send DHCPv6 requests and listen to
+# answers. If empty, the client is deactivated.
+INTERFACES="ppp0"
+
+# Verbose level for syslog. Default is 0 (0: minimal; 1: info; 2: debug)
+#VERBOSE=0

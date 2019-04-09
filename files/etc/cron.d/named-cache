@@ -1,0 +1,1 @@
+51 6 * * 7 root /opt/router/scripts/services/named-cache.sh &>/dev/null

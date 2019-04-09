@@ -1,0 +1,8 @@
+# IPv4 port forwarding set
+# Format: ip,proto:ports
+# proto = tcp or udp
+# ports = port number or port range
+# example: add -! HOSTS-V4 192.168.2.100,tcp:80
+# example: add -! HOSTS-V4 192.168.2.200,tcp:8000-8080
+
+# add -! HOSTS-V4 192.168.2.200,tcp:8000-8080

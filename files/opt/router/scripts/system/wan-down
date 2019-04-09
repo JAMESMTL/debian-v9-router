@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Set SYSVARS directory
+SYSVARS=/tmp/sysvars
+
+# Remove static route
+ip route del 10.178.0.0/16 via $(cat ${SYSVARS}/wan-gateway) dev ppp0 2>/dev/null
+
+# Clear wan info
+[ -f "${SYSVARS}/wan-logical" ] && rm ${SYSVARS}/wan-logical
+[ -f "${SYSVARS}/wan-physical" ] && rm ${SYSVARS}/wan-physical
+[ -f "${SYSVARS}/wan-local" ] && rm ${SYSVARS}/wan-local
+[ -f "${SYSVARS}/wan-gateway" ] && rm ${SYSVARS}/wan-gateway
+
+# WAN-DOWN commands
+service wide-dhcpv6-client stop
+service miniupnpd stop
+
+exit 0

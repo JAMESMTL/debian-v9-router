@@ -1,0 +1,13 @@
+###############################
+# DHCP reservations           #
+###############################
+
+# 90:e2:ba:47:24:c0,MEDIASERVER,192.168.2.61
+# 90:e2:ba:47:24:c0,MEDIASERVER,[::D458:D94C:07D8:D5F0]
+
+###############################
+# DHCP Named devices          #
+###############################
+
+# d4:0a:a9:22:fd:c8,BELLPVR,set:dhcp-dns
+# d4:0a:a9:22:fd:c8,BELLPVR,set:dhcp-iptv

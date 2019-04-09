@@ -1,0 +1,15 @@
+[Unit]
+Description=UPnP Internet Gateway Device Daemon
+Documentation=man:miniupnpd(8)
+After=network-online.target
+
+[Service]
+Type=forking
+EnvironmentFile=-/etc/default/miniupnpd
+EnvironmentFile=/etc/miniupnpd/miniupnpd.conf
+ExecStart=/usr/sbin/miniupnpd -i ${MiniUPnPd_EXTERNAL_INTERFACE} -a ${MiniUPnPd_LISTENING_IP} ${MiniUPnPd_OTHER_OPTIONS}
+PrivateTmp=yes
+PIDFile=/run/miniupnpd.pid
+
+[Install]
+WantedBy=multi-user.target

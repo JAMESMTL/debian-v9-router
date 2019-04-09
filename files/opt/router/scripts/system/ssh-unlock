@@ -1,0 +1,35 @@
+#!/bin/sh
+
+echo
+echo "######################################"
+echo "Enabling ssh password access"
+echo "######################################"
+echo
+
+echo -n "Disabling PubkeyAuthentication ... "
+sed -i '/^PubkeyAuthentication yes$/d' /etc/ssh/sshd_config
+grep -qE '^PubkeyAuthentication yes$' /etc/ssh/sshd_config && echo FAILED || echo ok
+
+echo -n "Enabling PasswordAuthentication ... "
+sed -i '/^PasswordAuthentication no$/d' /etc/ssh/sshd_config
+grep -qE '^PasswordAuthentication no$' /etc/ssh/sshd_config && echo FAILED || echo ok
+
+echo
+echo "######################################"
+echo "Finishing up"
+echo "######################################"
+echo
+
+echo -n "Restarting sshd service ... "
+service sshd restart
+echo ok
+
+echo
+echo "######################################"
+echo "Done"
+echo "######################################"
+echo
+
+echo
+echo Please logout and re-login using PasswordAuthentication
+echo

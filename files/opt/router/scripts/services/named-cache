@@ -1,0 +1,5 @@
+#!/bin/sh
+
+curl -sk --retry 5 --retry-delay 10 --max-time 20 -o /tmp/named.cache.tmp http://www.internic.net/domain/named.cache
+[ -s /tmp/named.cache.tmp ] && cp /tmp/named.cache.tmp /opt/router/unbound/named.cache
+[ -f /tmp/named.cache.tmp ] && rm /tmp/named.cache.tmp

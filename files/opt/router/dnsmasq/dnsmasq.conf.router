@@ -1,0 +1,40 @@
+# Listen
+interface=lan*
+
+# DNS
+port=10053
+domain=lan
+auth-zone=lan
+expand-hosts
+no-hosts
+
+# DHCP
+dhcp-authoritative
+dhcp-option=6,192.168.2.1
+dhcp-option=option6:dns-server,[fe80::]
+
+# Interface lan0
+dhcp-range=tag:dhcp-iptv,set:dns-iptv,192.168.2.10,192.168.2.19
+dhcp-range=192.168.2.20,192.168.2.254
+dhcp-range=::1000,::FFFF,constructor:lan0,ra-names,slaac
+
+# RA
+enable-ra
+
+# Logging
+quiet-ra
+quiet-dhcp
+quiet-dhcp6
+
+# Resolv file
+#resolv-file=/opt/router/dnsmasq/dnsmasq.resolv
+no-resolv
+
+# Config Files
+conf-file=/tmp/dnsmasq.iptv
+conf-file=/tmp/dnsmasq.router
+dhcp-hostsfile=/opt/router/dnsmasq/dnsmasq.hosts
+dhcp-leasefile=/opt/router/dnsmasq/dnsmasq.leases
+
+# Assign lan0 IP to router.lan
+interface-name=router.lan,lan0

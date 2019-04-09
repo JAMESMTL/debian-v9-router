@@ -1,0 +1,75 @@
+#!/bin/sh
+
+sourceVer=debian-v9-files
+
+echo
+echo "##########################################################"
+echo "Checking permissions"
+echo "##########################################################"
+echo
+
+echo -n "Verifying user ... "
+if [ ${USER} != 'root' ]; then
+	echo FAILED
+	echo Not running as root, exiting.
+	echo
+	exit
+else
+	echo ok
+fi
+
+echo
+echo "##########################################################"
+echo "Looking for modified files"
+echo "##########################################################"
+echo
+
+# Get file list from archive
+fileList=$(tar -tvf /opt/router/install/${sourceVer}.tar.gz | awk '{print $6}' | grep -vE '/$')
+
+# Detele temp file if exists
+[ -f "/tmp/$$.tmp" ] && rm /tmp/$$.tmp
+
+for listItem in $fileList; do
+	echo -n "comparing /${listItem} with /opt/router/files/${listItem} ... "
+
+	fileLive=$(md5sum -b /${listItem}  | awk '{print $1}')
+	fileOrig=$(md5sum -b /opt/router/files/${listItem} | awk '{print $1}')
+
+	if [  "$fileLive" != "$fileOrig" ]; then
+		echo yes
+		echo ${listItem} >> /tmp/$$.tmp
+	else
+		echo no
+	fi
+done
+
+echo
+echo "##########################################################"
+echo "creating archive of modified files"
+echo "##########################################################"
+echo
+
+if [ -s "/tmp/$$.tmp" ]; then
+	tar -C / -czvf /tmp/${sourceVer}-local.tar.gz -T /tmp/$$.tmp
+
+	if [ -s "/tmp/${sourceVer}-local.tar.gz" ]; then
+		mv -f /tmp/${sourceVer}-local.tar.gz /opt/router/install
+		echo
+		echo "Your backup of modified files can be found here :"
+		echo "/opt/router/install/${sourceVer}-local.tar.gz"
+	else
+		echo "Backup FAILED"
+	fi
+else
+	echo No modified files to archive ... skipping
+fi
+
+# Detele temp file if exists
+[ -f "/tmp/$$.tmp" ] && rm /tmp/$$.tmp
+
+echo
+echo "##########################################################"
+echo "Done"
+echo "##########################################################"
+echo

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ $1 = "ppp0" ]; then
+
+	# Call WAN-DOWN script
+	/opt/router/scripts/system/wan-down
+
+fi
+
+exit 0

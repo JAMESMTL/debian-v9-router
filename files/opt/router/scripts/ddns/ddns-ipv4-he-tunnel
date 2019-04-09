@@ -1,0 +1,137 @@
+#!/bin/sh
+
+#####################################
+# Start load dynamic vars
+#####################################
+
+# Set SYSVARS directory
+SYSVARS=/tmp/sysvars
+
+# Read wan info
+[ -f "${SYSVARS}/wan-logical" ] && LOGICAL=$(cat ${SYSVARS}/wan-logical) || exit
+[ -f "${SYSVARS}/wan-physical" ] && PHYSICAL=$(cat ${SYSVARS}/wan-physical) || exit
+[ -f "${SYSVARS}/wan-local" ] && LOCAL=$(cat ${SYSVARS}/wan-local) || exit
+[ -f "${SYSVARS}/wan-gateway" ] && GATEWAY=$(cat ${SYSVARS}/wan-gateway) || exit
+
+#####################################
+# End load dynamic vars
+#####################################
+
+
+###############################
+# Start user config
+###############################
+
+DDNS_USERNAME=henet_username
+DDNS_PASSWORD=henet_prefix_pass
+DDNS_HOST=he_host_999999
+DDNS_DOMAIN=
+DDNS_KEY=
+DDNS_REQUEST="https://ipv4.tunnelbroker.net/nic/update?username=${DDNS_USERNAME}&password=${DDNS_PASSWORD}&hostname=${DDNS_HOST}&myip={DDNS_IP}"
+
+DDNS_IF=$LOGICAL
+DDNS_IP_TYPE=ipv4
+DDNS_CACHE_PATH=/opt/router/ddns/ddns-ipv4-he-tunnel
+DDNS_AGENT=JAMESMTL-DDNS
+
+DDNS_UPDATE_DAYS=10
+CHECK_IP_CHANGE=no
+CHECK_EVERY_MINS=5
+CRONPATH=/etc/cron.d
+LOGFILESIZE=100
+
+RETRY_COUNT=10
+RETRY_DELAY=5
+MAX_TIME=10
+
+###############################
+# End user config
+###############################
+
+DATEFMT="+%a %b %d %Y %T %Z"
+
+# Call init script
+INITFILE=_functions
+[ -f $(dirname $0)/${INITFILE} ] && . $(dirname $0)/${INITFILE} || exit
+
+[ -z "$DDNS_REQUEST" ] && exit
+[ -z "$DDNS_IF" ] && exit
+[ -z "$DDNS_IP_TYPE" ] && exit
+[ -z "$DDNS_CACHE_PATH" ] && exit
+
+DDNS_IF=$(echo $DDNS_IF | tr '[A-Z]' '[a-z]')
+DDNS_IP_TYPE=$(echo $DDNS_IP_TYPE | tr '[A-Z]' '[a-z]')
+DDNS_CACHE_PATH=$(echo $DDNS_CACHE_PATH | tr '[A-Z]' '[a-z]')
+CRONPATH=$(echo $CRONPATH | tr '[A-Z]' '[a-z]')
+CHECK_IP_CHANGE=$(echo $CHECK_IP_CHANGE | tr '[A-Z]' '[a-z]')
+HOST_NAME=ddns-${DDNS_IP_TYPE}-$(echo $(basename $0) | sed -E 's/(ipv4|ipv6|ddns)-//g')
+
+[ ! -d $DDNS_CACHE_PATH ] && mkdir -p $DDNS_CACHE_PATH
+
+if [ $CHECK_IP_CHANGE = "yes" ]; then
+	[ ! -f ${CRONPATH}/${HOST_NAME} ] && echo "*/${CHECK_EVERY_MINS} * * * * root $0 SILENT" > ${CRONPATH}/${HOST_NAME}
+fi
+
+if [ $DDNS_IP_TYPE = "ipv6" ]; then
+	DDNS_IP=$(ifconfig $DDNS_IF | grep 'scopeid 0x0<global>' | awk '{ print $2 }')
+else
+	DDNS_IP=$(ifconfig $DDNS_IF | grep "inet " | awk '{ print $2 }')
+fi
+
+if [ -z "$DDNS_IP" ]; then
+	echo $(TZ=$TZ date "$DATEFMT"): Failed: IP Address Not Found >> ${DDNS_CACHE_PATH}/${HOST_NAME}.log
+	exit
+elif [ ! -s ${DDNS_CACHE_PATH}/${HOST_NAME}.cache ]; then
+	DDNS_UPDATE=true
+	DDNS_LOG="Send Request: No Cache File"
+elif [ $(cat ${DDNS_CACHE_PATH}/${HOST_NAME}.cache) != ${DDNS_IP} ]; then
+	DDNS_UPDATE=true
+	DDNS_LOG="Send Request: New IP Detected"
+elif [ ! -s ${DDNS_CACHE_PATH}/${HOST_NAME}.date ]; then
+	DDNS_UPDATE=true
+	DDNS_LOG="Send Request: Last Update Unknown"
+elif [ $(($(cat ${DDNS_CACHE_PATH}/${HOST_NAME}.date) + (86400 * ${DDNS_UPDATE_DAYS}))) -lt $(date +%s) ]; then
+	DDNS_UPDATE=true
+	DDNS_LOG="Send Request: Forced Update"
+else
+	DDNS_UPDATE=false
+fi
+
+if [ $DDNS_UPDATE = true ]; then
+
+	[ -z "$DDNS_USERNAME" ] || DDNS_REQUEST=$(echo "$DDNS_REQUEST" | sed "s/{DDNS_USERNAME}/${DDNS_USERNAME}/g")
+	[ -z "$DDNS_PASSWORD" ] || DDNS_REQUEST=$(echo "$DDNS_REQUEST" | sed "s/{DDNS_PASSWORD}/${DDNS_PASSWORD}/g")
+	[ -z "$DDNS_HOST" ] || DDNS_REQUEST=$(echo "$DDNS_REQUEST" | sed "s/{DDNS_HOST}/${DDNS_HOST}/g")
+	[ -z "$DDNS_DOMAIN" ] || DDNS_REQUEST=$(echo "$DDNS_REQUEST" | sed "s/{DDNS_DOMAIN}/${DDNS_DOMAIN}/g")
+	[ -z "$DDNS_KEY" ] || DDNS_REQUEST=$(echo "$DDNS_REQUEST" | sed "s/{DDNS_KEY}/${DDNS_KEY}/g")
+	[ -z "$DDNS_IP" ] || DDNS_REQUEST=$(echo "$DDNS_REQUEST" | sed "s/{DDNS_IP}/${DDNS_IP}/g")
+	[ -z "$DDNS_AGENT" ] || DDNS_AGENT="-A $DDNS_AGENT "
+
+	echo $(TZ=$TZ date "$DATEFMT"): $DDNS_LOG >> ${DDNS_CACHE_PATH}/${HOST_NAME}.log
+
+	echo $(TZ=$TZ date "$DATEFMT"): curl -sk --retry $RETRY_COUNT --retry-delay $RETRY_DELAY --max-time $MAX_TIME -o ${DDNS_CACHE_PATH}/${HOST_NAME}.last ${DDNS_AGENT}"${DDNS_REQUEST}" >> ${DDNS_CACHE_PATH}/${HOST_NAME}.log
+	curl -sk --retry $RETRY_COUNT --retry-delay $RETRY_DELAY --max-time $MAX_TIME -o ${DDNS_CACHE_PATH}/${HOST_NAME}.last ${DDNS_AGENT}"${DDNS_REQUEST}"
+
+	if [ -f ${DDNS_CACHE_PATH}/${HOST_NAME}.last ]; then
+		if egrep -qi '^(nohost|badauth|noipv4|badip|badagent|abuse|911|notfqdn|numhost|dnserr|!donator|Forbidden)' ${DDNS_CACHE_PATH}/${HOST_NAME}.last; then
+			echo $(TZ=$TZ date "$DATEFMT"): Failed: $(cat ${DDNS_CACHE_PATH}/${HOST_NAME}.last | sed -e 's/<[^>]*>/ /g' | tr -s ' ') >> ${DDNS_CACHE_PATH}/${HOST_NAME}.log
+		else
+			echo -n $DDNS_IP > ${DDNS_CACHE_PATH}/${HOST_NAME}.cache
+			echo -n $(date +%s) > ${DDNS_CACHE_PATH}/${HOST_NAME}.date
+			echo $(TZ=$TZ date "$DATEFMT"): Success: $(cat ${DDNS_CACHE_PATH}/${HOST_NAME}.last | sed -e 's/<[^>]*>/ /g' | tr -s ' ') >> ${DDNS_CACHE_PATH}/${HOST_NAME}.log
+		fi
+		rm  ${DDNS_CACHE_PATH}/${HOST_NAME}.last
+	else
+		echo $(TZ=$TZ date "$DATEFMT"): Failed: No Response >> ${DDNS_CACHE_PATH}/${HOST_NAME}.log
+	fi
+
+elif [ ! "$1" = "SILENT" ]; then
+	echo $(TZ=$TZ date "$DATEFMT"): No Update Required: ${DDNS_IP} >> ${DDNS_CACHE_PATH}/${HOST_NAME}.log
+fi
+
+if [ -s ${DDNS_CACHE_PATH}/${HOST_NAME}.log ] && [ $(wc -l ${DDNS_CACHE_PATH}/${HOST_NAME}.log | cut -d ' ' -f1) -gt $LOGFILESIZE ]; then
+	tail -n $LOGFILESIZE ${DDNS_CACHE_PATH}/${HOST_NAME}.log > ${DDNS_CACHE_PATH}/${HOST_NAME}.log.tmp
+	mv ${DDNS_CACHE_PATH}/${HOST_NAME}.log.tmp ${DDNS_CACHE_PATH}/${HOST_NAME}.log
+fi
+
+chmod 644 ${DDNS_CACHE_PATH}/${HOST_NAME}.log

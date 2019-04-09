@@ -1,0 +1,42 @@
+#!/bin/sh
+
+###################################################
+# Recived Parameters
+###################################################
+# $1: Logical Interface 
+# $2: Physical Interface
+# $3: N/A
+# $4: Local IP
+# $5: Gateway
+###################################################
+
+
+if [ $1 = "ppp0" ]; then
+
+	###################################################
+	# Passed Parameters to SYSVARS directory
+	###################################################
+	# wan-logical: Logical Interface 
+	# wan-physical: Physical Interface
+	# wan-local: Local IP
+	# wan-gateway: Gateway IP
+	###################################################
+
+	# Set SYSVARS path
+	SYSVARS=/tmp/sysvars
+	[ -d $SYSVARS ] || mkdir -p $SYSVARS
+
+	# Write vars to SYSVARS dir
+	echo "$1" > ${SYSVARS}/wan-logical
+	echo "$2" > ${SYSVARS}/wan-physical
+	echo "$4" > ${SYSVARS}/wan-local
+	echo "$5" > ${SYSVARS}/wan-gateway
+
+	# Call WAN-UP script
+	/opt/router/scripts/system/wan-up
+
+fi
+
+
+
+exit 0

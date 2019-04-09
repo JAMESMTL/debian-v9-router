@@ -1,0 +1,247 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:		miniupnpd
+# Required-Start:	$remote_fs
+# Required-Stop:	$remote_fs
+# Should-Start:		$local_fs $network $time
+# Should-Stop:		$local_fs $network $time
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	daemon providing UPnP Internet Gateway Device (IGD) services
+# Description:		MiniUPnPd is a small daemon providing UPnP Internet Gateway
+#			Device (IGD) services to your network. UPnP and NAT-PMP are
+#			used to improve internet connectivity for devices behind a
+#			NAT router. Any peer to peer network application such as
+#			games, IM, etc. can benefit from a NAT router supporting
+#			UPnP and/or NAT-PMP.
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+DAEMON_NAME="MiniUPnPd"
+DAEMON_SERVICE_NAME="UPnP devices daemon"
+IPTABLES="/sbin/iptables"
+IP6TABLES="/sbin/ip6tables"
+MINIUPNPD="/usr/sbin/miniupnpd"
+IP="/bin/ip"
+
+if [ -r /lib/init/vars.sh ]
+then
+	. /lib/init/vars.sh
+fi
+
+# Make sure the package hasn't been removed but not purged
+if ! [ -x ${MINIUPNPD} ] && [ -x ${IPTABLES} ] && [ -x ${IP} ]
+then
+	exit 0
+fi
+
+if [ -f "/etc/default/miniupnpd" ]
+then
+	. /etc/default/miniupnpd
+else
+	log_daemon_msg "${DAEMON_NAME}: Default file not found: exiting"
+	log_end_msg 1
+
+	exit 0
+fi
+
+if [ "${START_DAEMON}" != "1" ]
+then
+	log_daemon_msg "${DAEMON_NAME}: /etc/default/miniupnpd isn't set to START_DAEMON=1: exiting"
+	log_end_msg 1
+
+	exit 0
+fi
+
+if [ -z "${MiniUPnPd_EXTERNAL_INTERFACE}" ]
+then
+	log_daemon_msg "${DAEMON_NAME}: no interface defined: exiting"
+	log_end_msg 1
+
+	exit 0
+fi
+
+if [ -z "${MiniUPnPd_LISTENING_IP}" ]
+then
+	log_daemon_msg "${DAEMON_NAME}: no listening IP defined: exiting"
+	log_end_msg 1
+
+	exit 0
+fi
+
+EXTIP="$(LC_ALL=C ${IP} addr show ${MiniUPnPd_EXTERNAL_INTERFACE} | grep "inet " | awk '{ print $2 }' | cut -d"/" -f1)"
+
+ip6tables_init_fw_tables ()
+{
+	if [ -z "${EXTIP6}" ] ; then
+		return
+	fi
+	N6DIRTY="$(LC_ALL=C ${IP6TABLES} -L -n | grep 'MINIUPNPD' | awk '{ printf $1 }')"
+
+	if [ "${N6DIRTY}" = "MINIUPNPDChain" ]
+	then
+		${IP6TABLES} -F MINIUPNPD
+	elif [ "${N6DIRTY}" = "Chain" ]
+	then
+#		${IP6TABLES} -A FORWARD -i ${MiniUPnPd_EXTERNAL_INTERFACE} -j MINIUPNPD
+		${IP6TABLES} -F MINIUPNPD
+	else
+##added line
+		${IP6TABLES} -F MINIUPNPD
+#		${IP6TABLES} -N MINIUPNPD
+#		${IP6TABLES} -A FORWARD -i ${MiniUPnPd_EXTERNAL_INTERFACE} -j MINIUPNPD
+	fi
+}
+
+iptables_init_nat_tables ()
+{
+	# Initialize the PREROUTING chain first
+	NDIRTY="$(LC_ALL=C ${IPTABLES} -t nat -L -n | grep 'MINIUPNPD' | awk '{ printf $1 }')"
+
+	if [ "${NDIRTY}" = "MINIUPNPDChain" ]
+	then
+		# Nat table dirty; Cleaning...
+		${IPTABLES} -t nat -F MINIUPNPD
+	elif [ "${NDIRTY}" = "Chain" ]
+	then
+		# Dirty NAT chain but no reference..?
+		${IPTABLES} -t nat -A PREROUTING -d ${EXTIP} -i ${MiniUPnPd_EXTERNAL_INTERFACE} -j MINIUPNPD
+		${IPTABLES} -t nat -F MINIUPNPD
+	else
+		# NAT table clean..initalizing..
+#		${IPTABLES} -t nat -N MINIUPNPD
+		${IPTABLES} -t nat -A PREROUTING -d ${EXTIP} -i ${MiniUPnPd_EXTERNAL_INTERFACE} -j MINIUPNPD
+	fi
+
+	# then do the FORWARD chain
+	FDIRTY="$(LC_ALL=C ${IPTABLES} -t filter -L -n | grep 'MINIUPNPD' | awk '{ printf $1 }')"
+
+	if [ "${FDIRTY}" = "MINIUPNPDChain" ]
+	then
+		# Filter table dirty; Cleaning...
+		${IPTABLES} -t filter -F MINIUPNPD
+	elif [ "${FDIRTY}" = "Chain" ]
+	then
+		# Dirty filter chain but no reference..? Fixsted.
+#		${IPTABLES} -t filter -I FORWARD -i ${MiniUPnPd_EXTERNAL_INTERFACE} ! -o ${MiniUPnPd_EXTERNAL_INTERFACE} -j MINIUPNPD
+		${IPTABLES} -t filter -F MINIUPNPD
+	else
+		# Filter table clean..initalizing..
+### added line
+		${IPTABLES} -t filter -F MINIUPNPD
+#		${IPTABLES} -t filter -N MINIUPNPD
+#		${IPTABLES} -t filter -I FORWARD -i ${MiniUPnPd_EXTERNAL_INTERFACE} ! -o ${MiniUPnPd_EXTERNAL_INTERFACE} -j MINIUPNPD
+	fi
+}
+
+ip6tables_stop_fw_tables ()
+{
+	N6DIRTY="$(LC_ALL=C ${IP6TABLES} -L -n | grep 'MINIUPNPD' | awk '{ printf $1 }')"
+	if [ "${N6DIRTY}" = "MINIUPNPDChain" ]
+	then
+		${IP6TABLES} -F MINIUPNPD || true
+#		${IP6TABLES} -D FORWARD -i ${MiniUPnPd_EXTERNAL_INTERFACE} -j MINIUPNPD || true
+#		${IP6TABLES} -X MINIUPNPD || true
+	elif [ "${NDIRTY}" = "Chain" ]
+	then
+		${IP6TABLES} -F MINIUPNPD || true
+#		${IP6TABLES} -X MINIUPNPD || true
+	fi
+}
+
+iptables_stop_nat_tables ()
+{
+	# Clean the nat tables
+	NDIRTY="$(LC_ALL=C ${IPTABLES} -t nat -L -n | grep 'MINIUPNPD' | awk '{ printf $1 }')"
+
+	if [ "${NDIRTY}" = "MINIUPNPDChain" ]
+	then
+		${IPTABLES} -t nat -F MINIUPNPD || true
+		${IPTABLES} -t nat -D PREROUTING -d ${EXTIP} -i ${MiniUPnPd_EXTERNAL_INTERFACE} -j MINIUPNPD || true
+#		${IPTABLES} -t nat -X MINIUPNPD || true
+	elif [ "${NDIRTY}" = "Chain" ]
+	then
+		${IPTABLES} -t nat -F MINIUPNPD || true
+#		${IPTABLES} -t nat -X MINIUPNPD || true
+	fi
+
+	# Clean the filter tables
+	FDIRTY="$(LC_ALL=C ${IPTABLES} -t filter -L -n | grep 'MINIUPNPD' | awk '{ printf $1 }')"
+
+	if [ "${FDIRTY}" = "MINIUPNPDChain" ]
+	then
+		${IPTABLES} -t filter -F MINIUPNPD || true
+#		${IPTABLES} -t filter -D FORWARD -i ${MiniUPnPd_EXTERNAL_INTERFACE} ! -o ${MiniUPnPd_EXTERNAL_INTERFACE} -j MINIUPNPD || true
+#		${IPTABLES} -t filter -X MINIUPNPD || true
+	elif [ "${FDIRTY}" = "Chain" ]
+	then
+		${IPTABLES} -t filter -F MINIUPNPD || true
+#		${IPTABLES} -t filter -X MINIUPNPD || true
+	fi
+}
+
+case "${1}" in
+	start)
+		iptables_init_nat_tables
+		if [ "${MiniUPnPd_ip6tables_enable}" = "yes" ] ; then ip6tables_init_fw_tables ; fi
+
+		log_daemon_msg "Starting ${DAEMON_SERVICE_NAME}" ${DAEMON_NAME}
+
+		start-stop-daemon -q --start --exec "/usr/sbin/miniupnpd" -- -i ${MiniUPnPd_EXTERNAL_INTERFACE} -o ${EXTIP} -a ${MiniUPnPd_LISTENING_IP} ${MiniUPnPd_OTHER_OPTIONS}
+		RET="${?}"
+
+		case "${RET}" in
+			0|1)
+				log_end_msg 0
+				;;
+
+			*)
+				log_end_msg 1
+
+				exit 1
+				;;
+		esac
+		;;
+
+	stop)
+		log_daemon_msg "Stopping ${DAEMON_SERVICE_NAME}" ${DAEMON_NAME}
+
+		start-stop-daemon -q --stop --oknodo --pidfile /var/run/miniupnpd.pid
+		RET="${?}"
+
+		iptables_stop_nat_tables
+		if [ "${MiniUPnPd_ip6tables_enable}" = "yes" ] ; then ip6tables_stop_fw_tables ; fi
+
+		case "${RET}" in
+			0|1)
+				log_end_msg 0
+				;;
+
+			*)
+				log_end_msg 1
+
+				exit 1
+				;;
+		esac
+		;;
+
+	restart|force-reload)
+		${0} stop
+		sleep 1
+		${0} start
+		;;
+
+	status)
+		status_of_proc "/usr/sbin/minissdpd" "MiniUPnPd"
+		exit ${?}
+		;;
+
+	*)
+		echo "Usage: ${0} {start|stop|restart|status}"
+		exit 1
+		;;
+esac
+
+exit 0
