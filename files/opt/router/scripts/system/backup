@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sourceVer=debian-v9-files
+sourceVer=debian-v9-router
 
 echo
 echo "##########################################################"
@@ -25,7 +25,8 @@ echo "##########################################################"
 echo
 
 # Get file list from archive
-fileList=$(tar -tvf /opt/router/install/${sourceVer}.tar.gz | awk '{print $6}' | grep -vE '/$')
+fileList=$(tar -tvf /opt/router/install/${sourceVer}.tar.gz | awk '{print $6}' | grep -oE '^.*/files/.*' | sed "s/.*-${sourceVer}-.*\/files\///g" | grep -vE '/$')
+
 
 # Detele temp file if exists
 [ -f "/tmp/$$.tmp" ] && rm /tmp/$$.tmp
