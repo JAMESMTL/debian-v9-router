@@ -1,1 +1,3 @@
 Sample debian router for Bell FTTH with iptv
+
+wget -q -O /tmp/install.sh https://raw.githubusercontent.com/JAMESMTL/debian-v9-router/master/install.sh && sh /tmp/install.sh
