@@ -283,27 +283,32 @@ echo "creating symlinks"
 echo "######################################"
 echo
 
-echo -n "creating /root/router/quickstart/network_interfaces ... "
-ln -sf /etc/network/interfaces.router /root/router/quickstart/network_interfaces && echo ok || echo FAILED
+# Quickstst symlinks
 echo -n "creating /root/router/quickstart/dhcp_base ... "
 ln -sf /opt/router/dnsmasq/dnsmasq.conf.router /root/router/quickstart/dhcp_base && echo ok || echo FAILED
 echo -n "creating /root/router/quickstart/dhcp_hosts ... "
 ln -sf /opt/router/dnsmasq/dnsmasq.hosts /root/router/quickstart/dhcp_hosts && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/pppoe ... "
-ln -sf /etc/ppp/peers/pppoe.conf /root/router/quickstart/pppoe && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/network_interfaces_map ... "
-ln -sf /etc/udev/rules.d/70-persistent-net.rules /root/router/quickstart/network_persistent_rules && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/static_split_dns ... "
-ln -sf /opt/router/unbound/unbound.static /root/router/quickstart/static_split_dns && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/he_tunnel_ddns ... "
-ln -sf /opt/router/scripts/ddns/ddns-ipv4-he-tunnel /root/router/quickstart/he_tunnel_ddns && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/wan_up ... "
-ln -sf /opt/router/scripts/system/wan-up /root/router/quickstart/wan_up && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/forwarding_v4.set ... "
-ln -sf /opt/router/nftables/port_forwarding_v4.set /root/router/quickstart/forwarding_v4.set && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/forwarding_v6.set ... "
-ln -sf /opt/router/nftables/port_forwarding_v6.set /root/router/quickstart/forwarding_v6.set && echo ok || echo FAILED
 
+echo -n "creating /root/router/quickstart/network_forwarding_v4.set ... "
+ln -sf /opt/router/nftables/port_forwarding_v4.set /root/router/quickstart/network_forwarding_v4.set && echo ok || echo FAILED
+echo -n "creating /root/router/quickstart/network_forwarding_v6.set ... "
+ln -sf /opt/router/nftables/port_forwarding_v6.set /root/router/quickstart/network_forwarding_v6.set && echo ok || echo FAILED
+echo -n "creating /root/router/quickstart/network_interfaces ... "
+ln -sf /etc/network/interfaces.router /root/router/quickstart/network_interfaces && echo ok || echo FAILED
+echo -n "creating /root/router/quickstart/network_persistent_rules ... "
+ln -sf /etc/udev/rules.d/70-persistent-net.rules /root/router/quickstart/network_persistent_rules && echo ok || echo FAILED
+echo -n "creating /root/router/quickstart/network_pppoe ... "
+ln -sf /etc/ppp/peers/pppoe.conf /root/router/quickstart/network_pppoe && echo ok || echo FAILED
+echo -n "creating /root/router/quickstart/network_wan_up ... "
+ln -sf /opt/router/scripts/system/wan-up /root/router/quickstart/network_wan_up && echo ok || echo FAILED
+
+echo -n "creating /root/router/quickstart/dns_split_static ... "
+ln -sf /opt/router/unbound/unbound.static /root/router/quickstart/dns_split_static && echo ok || echo FAILED
+
+echo -n "creating /root/router/quickstart/ddns_he_tunnel ... "
+ln -sf /opt/router/scripts/ddns/ddns-ipv4-he-tunnel /root/router/quickstart/ddns_he_tunnel && echo ok || echo FAILED
+
+# actions symlinks
 echo -n "creating /root/router/action/load-forwarding.sh ... "
 ln -sf /opt/router/scripts/system/load-forwarding /root/router/action/load-forwarding.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/activate.sh ... "

@@ -65,11 +65,9 @@ cdr2mask ()
 SYSVARS=/tmp/sysvars
 [ -d $SYSVARS ] || mkdir -p $SYSVARS
 
-
 case "$interface" in
 
 	wan0.36)
-
 		# Clear default route
 		ip route del default via $new_routers dev wan0.36 2>/dev/null
 
@@ -93,13 +91,10 @@ case "$interface" in
 		[ ! -z "$new_subnet_mask" ] && echo "${new_network_number}/$(mask2cdr ${new_subnet_mask})" > ${SYSVARS}/${interface}-prefix
 		[ ! -z "$new_domain_name_servers" ] && echo "$new_domain_name_servers" > ${SYSVARS}/${interface}-dns
 		;;
-
 esac
-
 
 ###################################################
 # End sysvars
 ###################################################
-
 
 exit 0

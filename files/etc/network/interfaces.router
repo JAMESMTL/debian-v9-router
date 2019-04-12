@@ -50,7 +50,7 @@ netmask 255.255.255.0
 #	up ip -6 route add 2001:db8:100:1::/64 dev lan0 table he-net
 #	down ip -6 route del 2001:db8:100:1::/64 dev lan0 table he-net
 
-# LAN secondary interface (vlan 10)
+# LAN secondary interface (vlan 10) - ex. guest network
 # auto lan0.10
 # iface lan0.10 inet static
 # address 192.168.10.1

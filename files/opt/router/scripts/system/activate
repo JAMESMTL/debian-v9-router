@@ -49,11 +49,11 @@ echo "Remapping quickstart symlinks"
 echo "######################################"
 echo
 
-echo "remapping ~/router/quickstart/network_interfaces -> /etc/network/interfaces"
-ln -sf /etc/network/interfaces ~/router/quickstart/network_interfaces
+echo -n "remapping ~/router/quickstart/network_interfaces -> /etc/network/interfaces"
+ln -sf /etc/network/interfaces /root/router/quickstart/network_interfaces && echo ok || echo FAILED
 
-echo "remapping ~/router/quickstart/dhcp_base -> /opt/router/dnsmasq/dnsmasq.conf"
-ln -sf /opt/router/dnsmasq/dnsmasq.conf ~/router/quickstart/dhcp_base
+echo -n "remapping ~/router/quickstart/dhcp_base -> /opt/router/dnsmasq/dnsmasq.conf"
+ln -sf /opt/router/dnsmasq/dnsmasq.conf /root/router/quickstart/dhcp_base && echo ok || echo FAILED
 
 echo
 echo "######################################"
