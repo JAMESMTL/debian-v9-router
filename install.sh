@@ -447,3 +447,4 @@ fi
 
 # Store version
 echo "$sourceVer" > /opt/router/install/.version
+cp /opt/router/install/.version /opt/router/files/opt/router/install/

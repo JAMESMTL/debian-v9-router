@@ -76,7 +76,7 @@ echo "##########################################################"
 echo
 
 if [ -s "/opt/router/install/.extras" ]; then
-	tar -C / -czvf /tmp/${sourceVer}-extras.tar.gz -T /opt/router/install/.extras
+	grep -vE '^( |#|$)' /opt/router/install/.extras | tar -C / -czvf /tmp/${sourceVer}-extras.tar.gz -T -
 
 	if [ -s "/tmp/${sourceVer}-extras.tar.gz" ]; then
 		mv -f /tmp/${sourceVer}-extras.tar.gz /opt/router/install
