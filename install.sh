@@ -391,6 +391,58 @@ if [ $useLocalCopy = 'yes' ]; then
 	tar -C / -xvf /opt/router/install/${sourceVer}-local.tar.gz
 fi
 
+echo "##########################################################"
+echo "Install backup of extra files"
+echo "##########################################################"
+echo
+
+useLocalCopy=no
+useLocalPath=""
+
+[ -f "/opt/router/install/${sourceVer}-extras.tar.gz" ] && useLocalPath="/opt/router/install/${sourceVer}-extras.tar.gz"
+[ -f "${sourceDir}/${sourceVer}-extras.tar.gz" ] && useLocalPath="${sourceDir}/${sourceVer}-extras.tar.gz"
+
+# Detect if archive.extras exists
+if [ ! -z "$useLocalPath" ]; then
+	while true; do
+		read -p "Backup of extra files detected, use backup (y/n)? " yn
+		case $yn in
+			[Yy]* )
+				useLocalCopy=yes
+				break;;
+			[Nn]* )
+				useLocalCopy=no
+				echo
+				echo skipping ...
+				break;;
+		esac
+	done
+else
+	echo "${sourceVer}-extras.tar.gz not found ... skipping restore"
+fi
+
+# Extract extra files backup
+if [ $useLocalCopy = 'yes' ]; then	
+	if [ $(dirname $useLocalPath) != "/opt/router/install" ]; then
+		echo
+		echo -n "copying $useLocalPath -> /opt/router/install/${sourceVer}-extras.tar.gz ... "
+		cp $useLocalPath /opt/router/install && echo ok || echo FAILED					
+	fi
+
+	echo "Extracting files ..."
+	echo
+	tar -C / -xvf /opt/router/install/${sourceVer}-extras.tar.gz
+fi
+
+echo
+echo "##########################################################"
+echo "setting permissions"
+echo "##########################################################"
+echo
+
+
+
+
 echo
 echo "##########################################################"
 echo "setting permissions"
