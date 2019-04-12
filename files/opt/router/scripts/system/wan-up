@@ -32,7 +32,7 @@ ip route add 10.178.0.0/16 via $GATEWAY dev ppp0 2>/dev/null
 # /opt/router/scripts/ddns/ddns-ipv4-he-tunnel
 
 # Load DNS redirection ipsets
-ipset restore <<< $(cat /opt/router/nftables/dns_redirect_*.set)
+cat /opt/router/nftables/dns_redirect_*.set | ipset restore
 
 # Restart WAN dependant services
 service miniupnpd restart

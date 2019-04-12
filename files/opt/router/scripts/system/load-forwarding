@@ -36,7 +36,7 @@ done < $port_forwarding_v4_set
 echo "COMMIT" >> $port_forwarding_v4_nat
 
 # load port forwarding ipsets
-ipset restore <<< $(cat /opt/router/nftables/port_forwarding_*.set)
+cat /opt/router/nftables/port_forwarding_*.set | ipset restore
 
 # restore port forwarding nat rules
 iptables -t nat -F DNATHOSTS

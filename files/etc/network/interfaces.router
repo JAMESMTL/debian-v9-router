@@ -16,7 +16,7 @@ iface lo inet loopback
 # WAN physical interface
 allow-hotplug wan0
 iface wan0 inet manual
-	pre-up ipset restore <<< $(grep -hoE 'create.*$' /opt/router/nftables/*.set)
+	pre-up grep -hoE 'create.*$' /opt/router/nftables/*.set | ipset restore
 	pre-up iptables-restore /opt/router/nftables/iptables.rules
 	pre-up ip6tables-restore /opt/router/nftables/ip6tables.rules
 	pre-up ifconfig wan0 mtu 1508

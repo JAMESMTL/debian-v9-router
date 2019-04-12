@@ -10,6 +10,6 @@ iface lo inet loopback
 # The primary network interface
 allow-hotplug lan0
 iface lan0 inet dhcp
-	pre-up ipset restore < /opt/router/nftables/ipsets.set
-	pre-up iptables-restore /opt/router/nftables/iptables.conf
-	pre-up ip6tables-restore /opt/router/nftables/ip6tables.conf
+	pre-up grep -hoE 'create.*$' /opt/router/nftables/*.set | ipset restore
+	pre-up iptables-restore /opt/router/nftables/iptables.rules
+	pre-up ip6tables-restore /opt/router/nftables/ip6tables.rules
