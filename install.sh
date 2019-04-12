@@ -391,6 +391,7 @@ if [ $useLocalCopy = 'yes' ]; then
 	tar -C / -xvf /opt/router/install/${sourceVer}-local.tar.gz
 fi
 
+echo
 echo "##########################################################"
 echo "Install backup of extra files"
 echo "##########################################################"
