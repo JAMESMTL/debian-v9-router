@@ -441,15 +441,6 @@ echo "setting permissions"
 echo "##########################################################"
 echo
 
-
-
-
-echo
-echo "##########################################################"
-echo "setting permissions"
-echo "##########################################################"
-echo
-
 echo -n "chmod 755 /etc/ppp/ip-down.local ... "
 chmod 755 /etc/ppp/ip-down.local && echo ok || echo FAILED
 echo -n "chmod 755 /etc/ppp/ip-up.local ... "
