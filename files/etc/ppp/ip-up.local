@@ -37,6 +37,4 @@ if [ $1 = "ppp0" ]; then
 
 fi
 
-
-
 exit 0

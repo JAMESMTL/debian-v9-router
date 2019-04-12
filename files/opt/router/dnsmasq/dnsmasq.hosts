@@ -1,13 +1,16 @@
+# DNSMASQ hosts file
+# See --dhcp-host and --dhcp-hostsfile sections of dnsmasq man http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html
+# with additional configuration examples https://github.com/imp/dnsmasq/blob/master/dnsmasq.conf.example
+
 ###############################
 # DHCP reservations           #
 ###############################
 
-# 90:e2:ba:47:24:c0,MEDIASERVER,192.168.2.61
-# 90:e2:ba:47:24:c0,MEDIASERVER,[::61]
+# 90:e2:ba:21:e1:10,NAS,192.168.2.61
+# 90:e2:ba:21:e1:10,NAS,192.168.2.61,[::61]
 
 ###############################
 # DHCP Named devices          #
 ###############################
 
-# d4:0a:a9:22:fd:c8,BELLPVR,set:dhcp-dns
-# d4:0a:a9:22:fd:c8,BELLPVR,set:dhcp-iptv
+# d4:0a:a9:21:fc:a7,BELLPVR,set:iptv-dns

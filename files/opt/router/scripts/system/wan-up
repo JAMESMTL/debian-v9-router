@@ -18,7 +18,6 @@ SYSVARS=/tmp/sysvars
 [ -f "${SYSVARS}/wan-local" ] && LOCAL=$(cat ${SYSVARS}/wan-local) || exit
 [ -f "${SYSVARS}/wan-gateway" ] && GATEWAY=$(cat ${SYSVARS}/wan-gateway) || exit
 
-
 # Set tc
 tc qdisc add dev $LOGICAL root handle 1: htb default 10 r2q 2500
 tc class add dev $LOGICAL parent 1: classid 1:10 htb rate 1030mbit ceil 1030mbit
@@ -28,10 +27,14 @@ tc qdisc add dev $LOGICAL parent 1:10 handle 10: fq_codel ecn limit 1024
 ip route add 10.178.0.0/16 via $GATEWAY dev ppp0 2>/dev/null
 
 # WAN up commands
-# /opt/router/scripts/ddns/ddns-ipv4-he-tunnel
-/opt/router/scripts/system/load-forwarding-rules
+/opt/router/scripts/system/load-forwarding
 /opt/router/scripts/system/irq-affinity
+# /opt/router/scripts/ddns/ddns-ipv4-he-tunnel
 
+# Load DNS redirection ipsets
+ipset restore <<< $(cat /opt/router/nftables/dns_redirect_*.set)
+
+# Restart WAN dependant services
 service miniupnpd restart
 #service wide-dhcpv6-client restart
 

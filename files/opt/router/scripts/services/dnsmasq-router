@@ -1,7 +1,7 @@
 #!/bin/sh
 
+# Create router.lan host record with IPv6 local link address
 LOCAL_LINK=$(ifconfig lan0 2>/dev/null | grep -oE 'fe80[^ ]*')
-
 [ ! -z "$LOCAL_LINK" ] && echo "host-record=router.lan,${LOCAL_LINK}" > /tmp/dnsmasq.router
 
 exit 0

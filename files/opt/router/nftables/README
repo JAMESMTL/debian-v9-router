@@ -1,0 +1,5 @@
+.set extension is reserved for ipset files
+.rules extension is reserved for iptables rules
+
+On boot all .set files will be parsed for ipset create commands to ensure they are initialized
+prior to iptable rule sets are loaded

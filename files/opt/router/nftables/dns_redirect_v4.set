@@ -1,0 +1,19 @@
+# DNS-LOCAL-V4 set (DNS REDIRECTION)
+# This set contains local hosts whose IPv4 DNS requests are to be redirected to the router
+# ipset man page http://ipset.netfilter.org/ipset.man.html
+
+# Create DNS-LOCAL-V4 set and flush existing items. Set type hash:net
+create -! DNS-LOCAL-V4 hash:net family inet hashsize 4096 maxelem 262144
+flush -! DNS-LOCAL-V4
+
+# Add set items
+#
+# Format: src-net
+# src-net = source ip address, CIDR, ip-range. example: 192.168.10.1, 198.168.10.0/24, or 192.168.10.20-192.168.10.254
+#
+# example: add -! DNS-LOCAL-V4 192.168.10.1						// Force dns redirection of a single host
+# example: add -! DNS-LOCAL-V4 198.168.10.0/24					// Force dns redirection of an entire prefix
+# example: add -! DNS-LOCAL-V4 192.168.10.20-192.168.10.254		// Force dns redirection of an ip range
+
+# Redirect all IPv4 DNS requests from LAN to router
+# add -! DNS-LOCAL-V4 198.168.2.0/24

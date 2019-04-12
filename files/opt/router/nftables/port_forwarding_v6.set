@@ -1,8 +1,20 @@
-# IPv6 port forwarding set
-# Format: ip,proto:ports
-# proto = tcp or udp
-# ports = port number or port range
-# example: add -! HOSTS-V6 2001:db8:100:1::80,tcp:80
-# example: add -! HOSTS-V6 2001:db8:100:1::80,tcp:8000-8080
+# HOSTS-GLOBAL-V6 set (PORT FORWARDING)
+# This set contains rules permiting IPV6 WAN port forwarding
+# ipset man page http://ipset.netfilter.org/ipset.man.html
 
-# add -! HOSTS-V6 2001:db8:100:1::80,tcp:8000-8080
+# Create HOSTS-GLOBAL-V6 set and flush existing items. Set type hash:ip,port
+create -! HOSTS-GLOBAL-V6 hash:ip,port family inet6 hashsize 4096 maxelem 262144
+flush -! HOSTS-GLOBAL-V6
+
+# Add set items
+#
+# Format: dst-ip,dst-proto:dst-port
+# dst-ip = destination ip address. example: 2001:db8::100
+# dst-port = port number or port range
+# dst-proto = tcp or udp, port = port number. example: udp:1194 or tcp:8000
+#
+# example: add -! HOSTS-GLOBAL-V6 2001:db8::100,tcp:80			// Forward from any GLOBAL address requests matching port 80 to 2001:db8::100
+# example: add -! HOSTS-GLOBAL-V6 2001:db8::100,tcp:8000-8080	// Forward from any GLOBAL address requests matching ports 8000-8080 to 2001:db8::100
+
+# Uncomment to allow http (port 80) requests from any GLOBAL IPV6 address
+# add -! HOSTS-GLOBAL-V6 2001:db8::100,tcp:80

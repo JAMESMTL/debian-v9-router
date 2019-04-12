@@ -1,4 +1,2 @@
 SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="00:50:56:00:01:01", KERNEL=="ens192", NAME="wan0"
 SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="00:50:56:00:01:02", KERNEL=="ens224", NAME="lan0"
-SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="00:0e:1e:8e:2f:10", KERNEL=="ens192f0", NAME="wan0"
-SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="00:0e:1e:8e:2f:12", KERNEL=="ens192f1", NAME="lan0"

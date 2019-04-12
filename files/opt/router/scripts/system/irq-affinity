@@ -3,7 +3,6 @@
 TOTALCPU=$(grep -c processor /proc/cpuinfo)
 
 if [ "$TOTALCPU" -lt 2 ]; then
-
 	logger -t irq-affinity[$$] -p daemon.info only ${TOTALCPU} CPU skipping
 	exit 0
 fi

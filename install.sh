@@ -20,12 +20,12 @@ echo
 
 echo -n "Verifying user ... "
 if [ ${USER} != 'root' ]; then
-	echo FAILED
-	echo Not running as root, exiting.
+	echo "FAILED"
+	echo "Not running as root, exiting."
 	echo
 	exit
 else
-	echo ok
+	echo "ok"
 fi
 
 echo
@@ -35,18 +35,14 @@ echo "##########################################################"
 echo
 
 if grep -qE '^PermitRootLogin yes$' /etc/ssh/sshd_config; then
-
-	echo root ssh login already enabled ... skipping
-
+	echo "root ssh login already enabled ... skipping"
 else
-
 	echo -n "writting to /etc/ssh/sshd_config ... "
 
 	echo >> /etc/ssh/sshd_config
 	echo PermitRootLogin yes >> /etc/ssh/sshd_config
 
 	grep -qE '^PermitRootLogin yes$' /etc/ssh/sshd_config && echo ok || echo FAILED
-
 fi
 
 echo
@@ -76,7 +72,7 @@ echo "Fetching install files"
 echo "##########################################################"
 echo
 
-# Move install to /opt/router/install/
+# Copy install to /opt/router/install/
 echo -n "copying $0 /opt/router/install/ ... "
 cp $0 /opt/router/install/ && echo ok || echo FAILED
 
@@ -111,15 +107,6 @@ fi
 
 echo
 echo "##########################################################"
-echo "setting permissions"
-echo "##########################################################"
-echo
-
-echo -n "chmod 755 -R /opt/router/install/*.sh ... "
-chmod 755 -R /opt/router/install/*.sh && echo ok || echo FAILED
-
-echo
-echo "##########################################################"
 echo "Eanbling non-free repo and updating"
 echo "##########################################################"
 echo
@@ -136,24 +123,28 @@ echo
 
 apt install -y vlan bridge-utils net-tools ppp ipset traceroute nmap conntrack ndisc6 whois dnsutils mtr iperf3 curl resolvconf sudo apt-transport-https tcpdump ethtool firmware-bnx2x miniupnpd
 
-echo
-echo "##########################################################"
-echo "Installing vmware tools"
-echo "##########################################################"
-echo
+# Detect hypervisor 
+if [ grep -q hypervisor /proc/cpuinfo ]; then
 
-while true; do
-	read -p "Install open-vm-tools (y/n)? " yn
-	case $yn in
-		[Yy]* )
-			echo
-			apt install -y open-vm-tools
-			break;;
-		[Nn]* )
-			echo Skipping ...
-			break;;
-	esac
-done
+	echo
+	echo "##########################################################"
+	echo "Hypervisor detected"
+	echo "##########################################################"
+	echo
+
+	while true; do
+		read -p "Install open-vm-tools (y/n)? " yn
+		case $yn in
+			[Yy]* )
+				echo
+				apt install -y open-vm-tools
+				break;;
+			[Nn]* )
+				echo Skipping ...
+				break;;
+		esac
+	done
+fi
 
 echo
 echo "##########################################################"
@@ -177,7 +168,6 @@ useLocalPath=""
 
 [ -f "/opt/router/install/igmpproxy_0.2.1-1_amd64.deb" ] && useLocalPath="/opt/router/install/igmpproxy_0.2.1-1_amd64.deb"
 [ -f "${sourceDir}/igmpproxy_0.2.1-1_amd64.deb" ] && useLocalPath="${sourceDir}/igmpproxy_0.2.1-1_amd64.deb"
-
 
 # Detect if local version exists
 if [ ! -z "$useLocalPath" ]; then
@@ -212,7 +202,6 @@ useLocalPath=""
 
 [ -f "/opt/router/install/miniupnpd_2.1-5_amd64.deb" ] && useLocalPath="/opt/router/install/miniupnpd_2.1-5_amd64.deb"
 [ -f "${sourceDir}/miniupnpd_2.1-5_amd64.deb" ] && useLocalPath="${sourceDir}/miniupnpd_2.1-5_amd64.deb"
-
 
 # Detect if local version exists
 if [ ! -z "$useLocalPath" ]; then
@@ -255,7 +244,6 @@ fileList=$(tar -tvf /opt/router/install/${sourceVer}.tar.gz | awk '{print $6}' |
 
 # Extract archive
 tar -C /opt/router/files/ -xvf /opt/router/install/${sourceVer}.tar.gz --strip=2 | sed "s/.*-${sourceVer}-.*\/files\///g" | grep -vE '/$'
-
 
 echo
 echo "##########################################################"
@@ -316,8 +304,8 @@ ln -sf /opt/router/nftables/port_forwarding_v4.set /root/router/quickstart/forwa
 echo -n "creating /root/router/quickstart/forwarding_v6.set ... "
 ln -sf /opt/router/nftables/port_forwarding_v6.set /root/router/quickstart/forwarding_v6.set && echo ok || echo FAILED
 
-echo -n "creating /root/router/action/reload-forwarding.sh ... "
-ln -sf /opt/router/scripts/system/load-forwarding-rules /root/router/action/reload-forwarding.sh && echo ok || echo FAILED
+echo -n "creating /root/router/action/load-forwarding.sh ... "
+ln -sf /opt/router/scripts/system/load-forwarding /root/router/action/load-forwarding.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/activate.sh ... "
 ln -sf /opt/router/scripts/system/activate /root/router/action/activate.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/backup.sh ... "
@@ -387,12 +375,11 @@ if [ ! -z "$useLocalPath" ]; then
 		esac
 	done
 else
-	echo "${sourceVer}-local.tar.gz not found ... skipping"
+	echo "${sourceVer}-local.tar.gz not found ... skipping restore"
 fi
 
 # Extract local backup
-if [ $useLocalCopy = 'yes' ]; then
-	
+if [ $useLocalCopy = 'yes' ]; then	
 	if [ $(dirname $useLocalPath) != "/opt/router/install" ]; then
 		echo
 		echo -n "copying $useLocalPath -> /opt/router/install/${sourceVer}-local.tar.gz ... "
@@ -414,20 +401,49 @@ echo -n "chmod 755 /etc/ppp/ip-down.local ... "
 chmod 755 /etc/ppp/ip-down.local && echo ok || echo FAILED
 echo -n "chmod 755 /etc/ppp/ip-up.local ... "
 chmod 755 /etc/ppp/ip-up.local && echo ok || echo FAILED
+echo -n "chmod 755 -R /opt/router/install/*.sh ... "
+chmod 755 -R /opt/router/install/*.sh && echo ok || echo FAILED
 echo -n "chmod 755 -R /opt/router/scripts ... "
 chmod 755 -R /opt/router/scripts && echo ok || echo FAILED
 
+# Test if is activated following restore
+if [ -s /opt/router/install/.activated ]; then
+	echo
+	echo "######################################"
+	echo "Router activated following restore"
+	echo "######################################"
+	echo
 
-echo
-echo "######################################"
-echo "Finished"
-echo "######################################"
-echo
-echo "Please edit the files linked in the ~/router/quickstart directory"
-echo "then run ~/router/action/activate.sh"
-echo
-echo "After running the activation script, the router WILL SHUT DOWN"
-echo
-echo "The router will be fully active the next time you boot."
-echo "Make sure the original router is shutdown before booting."
-echo
+	echo "remapping ~/router/quickstart/network_interfaces -> /etc/network/interfaces"
+	ln -sf /etc/network/interfaces ~/router/quickstart/network_interfaces
+
+	echo "remapping ~/router/quickstart/dhcp_base -> /opt/router/dnsmasq/dnsmasq.conf"
+	ln -sf /opt/router/dnsmasq/dnsmasq.conf ~/router/quickstart/dhcp_base
+	
+	echo
+	echo "The router will be fully active the next time you boot."
+	echo "Make sure the original router is shutdown before booting."
+	echo
+else
+	echo
+	echo "######################################"
+	echo "Finished base install"
+	echo "######################################"
+	echo
+	echo "Please edit the files linked in the ~/router/quickstart directory then run the"
+	echo "activate script."
+	echo
+	echo "~/router/action/activate.sh"
+	echo
+	echo "The activate script will replace the temporary network and dhcp settings with"
+	echo "your configured settings"
+	echo
+	echo "After running the activate script, the router WILL SHUT DOWN"
+	echo
+	echo "The router will be fully active the next time you boot."
+	echo "Make sure the original router is shutdown before booting."
+	echo
+fi
+
+# Store version
+echo "$sourceVer" > /opt/router/install/.version

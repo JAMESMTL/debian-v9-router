@@ -1,0 +1,18 @@
+# DNS-LOCAL-V6 set (DNS REDIRECTION)
+# This set contains local hosts whose IPv6 DNS requests are to be redirected to the router
+# ipset man page http://ipset.netfilter.org/ipset.man.html
+
+# Create DNS-LOCAL-V6 set and flush existing items. Set type hash:net
+create -! DNS-LOCAL-V6 hash:net family inet6 hashsize 4096 maxelem 262144
+flush -! DNS-LOCAL-V6
+
+# Add set items
+#
+# Format: src-net
+# src-net = source ip address or CIDR. example: 2001:db8:1, 2001:db8:1/64
+#
+# example: add -! DNS-LOCAL-V6 2001:db8:1		// Force dns redirection of a single host
+# example: add -! DNS-LOCAL-V6 2001:db8:1/64	// Force dns redirection of an entire prefix
+
+# Redirect all IPV6 DNS requests from LAN to router
+# add -! DNS-LOCAL-V6 2001:db8:1/64

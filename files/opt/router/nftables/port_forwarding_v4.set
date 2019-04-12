@@ -1,8 +1,21 @@
-# IPv4 port forwarding set
-# Format: ip,proto:ports
-# proto = tcp or udp
-# ports = port number or port range
-# example: add -! HOSTS-V4 192.168.2.100,tcp:80
-# example: add -! HOSTS-V4 192.168.2.200,tcp:8000-8080
+# HOSTS-GLOBAL-V4 set (PORT FORWARDING)
+# This set contains rules permiting IPv4 WAN port forwarding
+# Note v4 DNAT rules will be added dynamically on wan-up or reload script
+# ipset man page http://ipset.netfilter.org/ipset.man.html
 
-# add -! HOSTS-V4 192.168.2.200,tcp:8000-8080
+# Create HOSTS-GLOBAL-V4 set and flush existing items. Set type hash:ip,port
+create -! HOSTS-GLOBAL-V4 hash:ip,port family inet hashsize 4096 maxelem 262144
+flush -! HOSTS-GLOBAL-V4
+
+# Add set items
+#
+# Format: dst-ip,dst-proto:dst-port
+# dst-ip = destination ip address. example: 198.51.100.1
+# dst-port = port number or port range
+# dst-proto = tcp or udp, port = port number. example: udp:1194 or tcp:8000
+#
+# example: add -! HOSTS-GLOBAL-V4 192.168.2.100,tcp:80			// Forward from any GLOBAL address requests matching port 80 to 192.168.2.100
+# example: add -! HOSTS-GLOBAL-V4 192.168.2.200,tcp:8000-8080	// Forward from any GLOBAL address requests matching ports 8000-8080 to 192.168.2.100
+
+# Uncomment to allow http (port 80) requests from any GLOBAL IPv4 address
+# add -! HOSTS-GLOBAL-V4 192.168.2.100,tcp:80

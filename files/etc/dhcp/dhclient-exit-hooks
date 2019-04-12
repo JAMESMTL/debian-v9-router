@@ -84,7 +84,6 @@ case "$interface" in
 
 		# Reload dnsmasq if rDNS servers change
 		[ "$new_domain_name_servers" != "$old_domain_name_servers" ] && service dnsmasq restart
-
 		;;
          
 	*)

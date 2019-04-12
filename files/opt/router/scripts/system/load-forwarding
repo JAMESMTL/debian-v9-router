@@ -6,7 +6,6 @@
 
 port_forwarding_v4_set=/opt/router/nftables/port_forwarding_v4.set
 port_forwarding_v4_nat=/opt/router/nftables/port_forwarding_v4.nat
-port_forwarding_v6_set=/opt/router/nftables/port_forwarding_v6.set
 
 ##########################################
 # END USER CONFIGS
@@ -30,16 +29,15 @@ while read line || [ -n "$line" ]; do
 	# skip incomplete lines
 	[ -z "$addr" ] || [ -z "$proto" ] || [ -z "$ports" ] && continue
 
-	echo -A HOSTS -p ${proto} --dport $(echo $ports | sed 's/-/:/g') -j DNAT --to ${addr}:${ports} >> $port_forwarding_v4_nat
+	echo -A DNATHOSTS -p ${proto} --dport $(echo $ports | sed 's/-/:/g') -j DNAT --to ${addr}:${ports} >> $port_forwarding_v4_nat
 
 done < $port_forwarding_v4_set
 
 echo "COMMIT" >> $port_forwarding_v4_nat
 
-# restore port forwarding rules
-ipset restore < $port_forwarding_v4_set
-ipset restore < $port_forwarding_v6_set
+# load port forwarding ipsets
+ipset restore <<< $(cat /opt/router/nftables/port_forwarding_*.set)
 
 # restore port forwarding nat rules
-iptables -t nat -F HOSTS
+iptables -t nat -F DNATHOSTS
 iptables-restore -n < $port_forwarding_v4_nat

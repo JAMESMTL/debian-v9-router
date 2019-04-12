@@ -16,6 +16,6 @@ sysctl -wq net.netfilter.nf_conntrack_tcp_timeout_established=3600
 echo 65536 > /sys/module/nf_conntrack/parameters/hashsize
 
 # Assign CPU affinity
-/opt/router/scripts/irq-affinity
+#/opt/router/scripts/irq-affinity
 
 exit 0

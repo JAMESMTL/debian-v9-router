@@ -1,16 +1,47 @@
 #!/bin/sh
 
+echo "######################################"
+echo "Activating router"
+echo "######################################"
 echo
-echo "######################################"
-echo "copying files"
-echo "######################################"
+echo "The activate script will replace the temporary network and dhcp settings with"
+echo "your configured settings"
+echo
+echo "After running the activate script, the router WILL SHUT DOWN"
+echo
+echo "The router will be fully active the next time you boot."
+echo "Make sure the original router is shutdown before booting."
 echo
 
-echo "copying /etc/network/interfaces.router -> /etc/network/interfaces"
-cp /etc/network/interfaces.router /etc/network/interfaces
+while true; do
+	read -p "Continue (y/n)? " yn
+	case $yn in
+		[Yy]* )
+			break;;
+		[Nn]* )
+			echo "Exiing ..."
+			exit
+			break;;
+	esac
+done
 
-echo "copying /opt/router/dnsmasq/dnsmasq.conf.router -> /opt/router/dnsmasq/dnsmasq.conf"
-cp /opt/router/dnsmasq/dnsmasq.conf.router /opt/router/dnsmasq/dnsmasq.conf
+echo
+echo "######################################"
+echo "Replacing temporary install files"
+echo "######################################"
+echo
+	
+if [ -s /opt/router/install/.activated ]; then
+	echo "Router already activated ... skipping"
+else
+	echo "copying /etc/network/interfaces.router -> /etc/network/interfaces"
+	cp /etc/network/interfaces.router /etc/network/interfaces
+
+	echo "copying /opt/router/dnsmasq/dnsmasq.conf.router -> /opt/router/dnsmasq/dnsmasq.conf"
+	cp /opt/router/dnsmasq/dnsmasq.conf.router /opt/router/dnsmasq/dnsmasq.conf
+	
+	echo $(date +%s) > /opt/router/install/.activated
+fi
 
 echo
 echo "######################################"
