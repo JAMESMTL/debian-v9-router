@@ -1,7 +1,5 @@
 #!/bin/sh
 
-sourceVer=$(cat /opt/router/install/.version)
-
 echo
 echo "##########################################################"
 echo "Checking permissions"
@@ -17,6 +15,9 @@ if [ ${USER} != 'root' ]; then
 else
 	echo ok
 fi
+
+# Get version
+sourceVer=$(cat /opt/router/install/.version)
 
 echo
 echo "##########################################################"
@@ -67,6 +68,27 @@ fi
 
 # Detele temp file if exists
 [ -f "/tmp/$$.tmp" ] && rm /tmp/$$.tmp
+
+echo
+echo "##########################################################"
+echo "creating archive of extra files"
+echo "##########################################################"
+echo
+
+if [ -s "/opt/router/install/.extras" ]; then
+	tar -C / -czvf /tmp/${sourceVer}-extras.tar.gz -T /opt/router/install/.extras
+
+	if [ -s "/tmp/${sourceVer}-extras.tar.gz" ]; then
+		mv -f /tmp/${sourceVer}-extras.tar.gz /opt/router/install
+		echo
+		echo "Your backup of extra files can be found here :"
+		echo "/opt/router/install/${sourceVer}-extras.tar.gz"
+	else
+		echo "Backup FAILED"
+	fi
+else
+	echo No extra files to archive ... skipping
+fi
 
 echo
 echo "##########################################################"
