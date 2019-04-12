@@ -124,7 +124,7 @@ echo
 apt install -y vlan bridge-utils net-tools ppp ipset traceroute nmap conntrack ndisc6 whois dnsutils mtr iperf3 curl resolvconf sudo apt-transport-https tcpdump ethtool firmware-bnx2x miniupnpd
 
 # Detect hypervisor 
-if [ grep -q hypervisor /proc/cpuinfo ]; then
+if grep -q hypervisor /proc/cpuinfo; then
 
 	echo
 	echo "##########################################################"
@@ -292,7 +292,7 @@ ln -sf /opt/router/dnsmasq/dnsmasq.hosts /root/router/quickstart/dhcp_hosts && e
 echo -n "creating /root/router/quickstart/pppoe ... "
 ln -sf /etc/ppp/peers/pppoe.conf /root/router/quickstart/pppoe && echo ok || echo FAILED
 echo -n "creating /root/router/quickstart/network_interfaces_map ... "
-ln -sf /etc/udev/rules.d/10-network.rules /root/router/quickstart/network_interfaces_map && echo ok || echo FAILED
+ln -sf /etc/udev/rules.d/70-persistent-net.rules /root/router/quickstart/network_persistent_rules && echo ok || echo FAILED
 echo -n "creating /root/router/quickstart/static_split_dns ... "
 ln -sf /opt/router/unbound/unbound.static /root/router/quickstart/static_split_dns && echo ok || echo FAILED
 echo -n "creating /root/router/quickstart/he_tunnel_ddns ... "
