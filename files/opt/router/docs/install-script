@@ -1,0 +1,65 @@
+INSTALL SCRIPT
+
+You can view the install script here
+https://github.com/JAMESMTL/debian-v9-router/blob/master/install.sh
+
+
+This is a summary of what the install script does.
+=======================================================
+
+1. Enable root ssh access and restart sshd daemon
+
+2. Enable the non-free debian repo so that we can install the bnx2x firmware
+
+3. Install packages needed to build the router. A full list of the packages
+which will be installed available here: 
+https://github.com/JAMESMTL/debian-v9-router/blob/master/files/opt/router/docs/packages
+
+note: we will be using igmpproxy version v0.2.1 distributed with debian buster rather
+than the outdated version v0.1. distributed with debian stretch. Personally I build the 
+package but this will do just fine.
+
+note: we will be using the miniupnpd binary v2.1 from debian buster rather than
+the binanry v1.8 (2014) distributed with debian stretch. Personally I build the
+package but using the binary works just fine.
+
+*** NOTE once debian 10 launches the distro packages will be up to date(ish)
+
+4. Clean up of the messy miniupnpd install.
+
+5. Create initial directories structure.
+/root/router this directory will contain symlinks to config files and scripts
+/opt/router this directory will contain physical config files and scripts
+
+6. Fetch config files as an archive from github or use an existing archive if
+available locally. You can browse the file tree here
+https://github.com/JAMESMTL/debian-v9-router/tree/master/files
+
+7. Extract files from the archive we downloaded to /opt/router/files. This directory
+will contain a copy of all the config files downloaded and the directory structure
+matches where those files will later be copied. This will be a reference copy of a
+working file set that can be consulted for comparison with the working files.
+
+8. Make a backup of all the original configuration files that will be replaced
+into /opt/router/files.bak. This will be a reference copy permitting the comparison
+between stock config files and a working config.
+
+9. Copy all of the configuration files to their final locations.
+
+10. Create symlinks in /root/router
+
+11. Extract backup locally modified files if available
+
+12. Extract backup of extra files if available
+
+13. Reload daemon configs. Remove miniupnpd from init.d autostart but add to systemd
+
+14. Create a fresh set of root ssh keys
+
+15. Make scripts executable
+
+16. Install complete!
+
+Use WinSCP to edit the config symlinks located in /root/router/quickstart
+
+then run the activate script ~/router/action/activate.sh

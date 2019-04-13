@@ -1,39 +1,142 @@
-The following packes will be installed by the install script
+PACKAGE LIST
+
+The following packages will be installed by the script
 
 Base and utility packages
 -------------------------------
-vlan - This package contains the user mode programs you need to add and remove VLAN devices from your ethernet devices
-bridge-utils - This package contains utilities for configuring the Linux Ethernet bridge in Linux. The Linux Ethernet bridge can be used for connecting multiple Ethernet devices together. The connecting is fully transparent: hosts connected to one Ethernet device see hosts connected to the other Ethernet devices directly.
-net-tools - This package includes the important tools for controlling the network subsystem of the Linux kernel. This includes arp, ifconfig, netstat, rarp, nameif and route. Additionally, this package contains utilities relating to particular network hardware types (plipconfig, slattach, mii-tool) and advanced aspects of IP configuration (iptunnel, ipmaddr).
-ppp - The Point-to-Point Protocol provides a standard way to transmit datagrams over a serial link, as well as a standard way for the machines at either end of the link to negotiate various optional characteristics of the link.
-ipset - IP sets are a framework inside the Linux 2.4.x and 2.6.x kernel which can be administered by the ipset(8) utility. Depending on the type, currently an IP set may store IP addresses, (TCP/UDP) port numbers or IP addresses with MAC addresses in a way which ensures lightning speed when matching an entry against a set.
-traceroute - The traceroute utility displays the route used by IP packets on their way to a specified network (or Internet) host. Traceroute displays the IP number and host name (if possible) of the machines along the route taken by the packets. Traceroute is used as a network debugging tool. If you're having network connectivity problems, traceroute will show you where the trouble is coming from along the route.
-nmap - Nmap is a utility for network exploration or security auditing. It supports ping scanning (determine which hosts are up), many port scanning techniques, version detection (determine service protocols and application versions listening behind ports), and TCP/IP fingerprinting (remote host OS or device identification). Nmap also offers flexible target and port specification, decoy/stealth scanning, sunRPC scanning, and more.
-conntrack - conntrack is a userspace command line program targeted at system administrators. It enables them to view and manage the in-kernel connection tracking state table.
+apt-transport-https - This package enables the usage of 'deb https://foo distro
+main' lines in the /etc/apt/sources.list so that all package managers using the
+libapt-pkg library can access metadata and packages available in sources
+accessible over https (Hypertext Transfer Protocol Secure).
+
+bridge-utils - This package contains utilities for configuring the Linux
+Ethernet bridge in Linux. The Linux Ethernet bridge can be used for connecting
+multiple Ethernet devices together. The connecting is fully transparent: hosts
+connected to one Ethernet device see hosts connected to the other Ethernet
+devices directly.
+
+conntrack - conntrack is a userspace command line program targeted at system
+administrators. It enables them to view and manage the in-kernel connection
+tracking state table.
+
+curl - curl is a command line tool for transferring data with URL syntax,
+supporting DICT, FILE, FTP, FTPS, GOPHER, HTTP, HTTPS, IMAP, IMAPS, LDAP,
+LDAPS, POP3, POP3S, RTMP, RTSP, SCP, SFTP, SMTP, SMTPS, TELNET and TFTP.
+
+dnsutils - This package delivers various client programs related to DNS that
+are derived from the BIND source tree.
+
+ethtool - ethtool can be used to query and change settings such as speed,
+auto-negotiation and checksum offload on many network devices, especially
+Ethernet devices.
+
+firmware-bnx2x - This package contains the binary firmware for Broadcom
+NetXtreme II 10Gb network adapters supported by the bnx2x driver.
+
+iperf3 - Iperf3 is a tool for performing network throughput measurements. It
+can test either TCP or UDP throughput.
+
+ipset - IP sets are a framework inside the Linux 2.4.x and 2.6.x kernel which
+can be administered by the ipset(8) utility. Depending on the type, currently
+an IP set may store IP addresses, (TCP/UDP) port numbers or IP addresses with
+MAC addresses in a way which ensures lightning speed when matching an entry
+against a set.
+
+mtr - As mtr starts, it investigates the network connection between the host 
+mtr runs on and a user-specified destination host. After it determines the
+address of each network hop between the machines, it sends a sequence of ICMP
+ECHO requests to each one to determine the quality of the link to each machine.
+As it does this, it prints running statistics about each machine.
+
 ndisc6 - IPv6 diagnostic tools
-whois - This package provides a commandline client for the WHOIS (RFC 3912) protocol, which queries online servers for information such as contact details for domains and IP address assignments. It can intelligently select the appropriate WHOIS server for most queries.
-dnsutils - This package delivers various client programs related to DNS that are derived from the BIND source tree.
-mtr - As mtr starts, it investigates the network connection between the host mtr runs on and a user-specified destination host. After it determines the address of each network hop between the machines, it sends a sequence of ICMP ECHO requests to each one to determine the quality of the link to each machine. As it does this, it prints running statistics about each machine.
-iperf3 - Iperf3 is a tool for performing network throughput measurements. It can test either TCP or UDP throughput.
-curl - curl is a command line tool for transferring data with URL syntax, supporting DICT, FILE, FTP, FTPS, GOPHER, HTTP, HTTPS, IMAP, IMAPS, LDAP, LDAPS, POP3, POP3S, RTMP, RTSP, SCP, SFTP, SMTP, SMTPS, TELNET and TFTP.
-resolvconf - Resolvconf is a framework for keeping up to date the system's information about name servers. It sets itself up as the intermediary between programs that supply this information (such as ifup and ifdown, DHCP clients, the PPP daemon and local name servers) and programs that use this information (such as DNS caches and resolver libraries).
-sudo - Sudo is a program designed to allow a sysadmin to give limited root privileges to users and log root activity. The basic philosophy is to give as few privileges as possible but still allow people to get their work done.
-apt-transport-https - This package enables the usage of 'deb https://foo distro main' lines in the /etc/apt/sources.list so that all package managers using the libapt-pkg library can access metadata and packages available in sources accessible over https (Hypertext Transfer Protocol Secure).
-tcpdump - This program allows you to dump the traffic on a network. tcpdump is able to examine IPv4, ICMPv4, IPv6, ICMPv6, UDP, TCP, SNMP, AFS BGP, RIP, PIM, DVMRP, IGMP, SMB, OSPF, NFS and many other packet types.
-ethtool - ethtool can be used to query and change settings such as speed, auto- negotiation and checksum offload on many network devices, especially Ethernet devices.
-firmware-bnx2x - This package contains the binary firmware for Broadcom NetXtreme II 10Gb network adapters supported by the bnx2x driver.
+
+net-tools - This package includes the important tools for controlling the
+network subsystem of the Linux kernel. This includes arp, ifconfig, netstat,
+rarp, nameif and route. Additionally, this package contains utilities relating
+to particular network hardware types (plipconfig, slattach, mii-tool) and
+advanced aspects of IP configuration (iptunnel, ipmaddr).
+
+nmap - Nmap is a utility for network exploration or security auditing. It
+supports ping scanning (determine which hosts are up), many port scanning
+techniques, version detection (determine service protocols and application
+versions listening behind ports), and TCP/IP fingerprinting (remote host OS or
+device identification). Nmap also offers flexible target and port
+specification, decoy/stealth scanning, sunRPC scanning, and more.
+
+ppp - The Point-to-Point Protocol provides a standard way to transmit datagrams
+over a serial link, as well as a standard way for the machines at either end of
+the link to negotiate various optional characteristics of the link.
+
+resolvconf - Resolvconf is a framework for keeping up to date the system's
+information about name servers. It sets itself up as the intermediary between
+programs that supply this information (such as ifup and ifdown, DHCP clients,
+the PPP daemon and local name servers) and programs that use this information
+(such as DNS caches and resolver libraries).
+
+sudo - Sudo is a program designed to allow a sysadmin to give limited root
+privileges to users and log root activity. The basic philosophy is to give as
+few privileges as possible but still allow people to get their work done.
+
+tcpdump - This program allows you to dump the traffic on a network. tcpdump is
+able to examine IPv4, ICMPv4, IPv6, ICMPv6, UDP, TCP, SNMP, AFS BGP, RIP, PIM,
+DVMRP, IGMP, SMB, OSPF, NFS and many other packet types.
+
+traceroute - The traceroute utility displays the route used by IP packets on
+their way to a specified network (or Internet) host. Traceroute displays the IP
+number and host name (if possible) of the machines along the route taken by the
+packets. Traceroute is used as a network debugging tool. If you're having
+network connectivity problems, traceroute will show you where the trouble is
+coming from along the route.
+
+vlan - This package contains the user mode programs you need to add and remove
+VLAN devices from your ethernet devices
+
+whois - This package provides a commandline client for the WHOIS (RFC 3912)
+protocol, which queries online servers for information such as contact details
+for domains and IP address assignments. It can intelligently select the
+appropriate WHOIS server for most queries.
 
 
 Hypervisor (ESXi) packages
 -------------------------------
-open-vm-tools - The Open Virtual Machine Tools (open-vm-tools) project is an open source implementation of VMware Tools. It is a suite of virtualization utilities and drivers to improve the functionality, user experience and administration of VMware virtual machines.
+open-vm-tools - The Open Virtual Machine Tools (open-vm-tools) project is an
+open source implementation of VMware Tools. It is a suite of virtualization
+utilities and drivers to improve the functionality, user experience and
+administration of VMware virtual machines.
 
 
-Basic Services
+Basic Router Services
 -------------------------------
-unbound - Unbound is a recursive-only caching DNS server which can perform DNSSEC validation of results. It implements only a minimal amount of authoritative service to prevent leakage to the root nameservers: forward lookups for localhost, reverse for 127.0.0.1 and ::1, and NXDOMAIN for zones served by AS112. Stub and forward zones are supported.
-dnsmasq - Dnsmasq is a lightweight, easy to configure, DNS forwarder and DHCP server. It is designed to provide DNS and optionally, DHCP, to a small network. It can serve the names of local machines which are not in the global DNS. The DHCP server integrates with the DNS server and allows machines with DHCP-allocated addresses to appear in the DNS with names configured either in each host or in a central configuration file. Dnsmasq supports static and dynamic DHCP leases and BOOTP/TFTP for network booting of diskless machines.
-inadyn - Simple and small DynDNS client written in the C language. With this package the user can have an Internet name for his host even though he might not have a name server or a static IP. It works by being a client of a supposedly open name server and updating the server's records when the need arise.
-openvpn - OpenVPN is an application to securely tunnel IP networks over a single UDP or TCP port. It can be used to access remote sites, make secure point-to-point connections, enhance wireless security, etc.
-wide-dhcpv6-client - DHCPv6 allows prefix delagation and host configuration for the IPv6 network protocol. Multiple network interfaces are supported by this DHCPv6 package.
-miniupnpd - MiniUPnPd is a small daemon which can be installed on a NAT router to provide UPnP Internet Gateway Device and Port Mapping Protocol services, enabling clients on the LAN to ask for port redirections. It is compatible with peer-to-peer software, messaging applications, and games consoles that connect to online services (including Xbox LIVE and the PlayStation Network).
+dnsmasq - Dnsmasq is a lightweight, easy to configure, DNS forwarder and DHCP
+server. It is designed to provide DNS and optionally, DHCP, to a small network.
+It can serve the names of local machines which are not in the global DNS. The
+DHCP server integrates with the DNS server and allows machines with
+DHCP-allocated addresses to appear in the DNS with names configured either
+in each host or in a central configuration file. Dnsmasq supports static
+and dynamic DHCP leases and BOOTP/TFTP for network booting of diskless machines.
+
+inadyn - Simple and small DynDNS client written in the C language. With this
+package the user can have an Internet name for his host even though he might
+not have a name server or a static IP. It works by being a client of a
+supposedly open name server and updating the server's records when the need
+arise.
+
+miniupnpd - MiniUPnPd is a small daemon which can be installed on a NAT router
+to provide UPnP Internet Gateway Device and Port Mapping Protocol services,
+enabling clients on the LAN to ask for port redirections. It is compatible with
+peer-to-peer software, messaging applications, and games consoles that connect
+to online services (including Xbox LIVE and the PlayStation Network).
+
+openvpn - OpenVPN is an application to securely tunnel IP networks over a
+single UDP or TCP port. It can be used to access remote sites, make secure
+point-to-point connections, enhance wireless security, etc.
+
+unbound - Unbound is a recursive-only caching DNS server which can perform
+DNSSEC validation of results. It implements only a minimal amount of
+authoritative service to prevent leakage to the root nameservers: forward
+lookups for localhost, reverse for 127.0.0.1 and ::1, and NXDOMAIN for zones
+served by AS112. Stub and forward zones are supported.
+
+wide-dhcpv6-client - DHCPv6 allows prefix delagation and host configuration
+for the IPv6 network protocol. Multiple network interfaces are supported by
+this DHCPv6 package.

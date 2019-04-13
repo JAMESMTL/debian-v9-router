@@ -27,7 +27,7 @@ tc qdisc add dev $LOGICAL parent 1:10 handle 10: fq_codel ecn limit 1024
 ip route add 10.178.0.0/16 via $GATEWAY dev ppp0 2>/dev/null
 
 # WAN up commands
-/opt/router/scripts/system/load-forwarding
+/opt/router/scripts/system/forwarding-rules
 /opt/router/scripts/system/irq-affinity
 # /opt/router/scripts/ddns/ddns-ipv4-he-tunnel
 

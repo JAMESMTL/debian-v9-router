@@ -1,6 +1,15 @@
-# Static dns rules
+# UNBOUND SPLIT / STATIC DNS ENTRIES
+# for distro version see https://manpages.debian.org/stretch/unbound/unbound.conf.5.en.html (Version specific)
+# for current version see https://nlnetlabs.nl/documentation/unbound/unbound.conf/
 #
-# Ex. split dns for ddns host
-#
+# Split dns example for ddns host
 # local-zone: "yourhostname.noip.com." redirect
 # local-data: "yourhostname.noip.com. A 192.168.2.80"
+#
+# Alternate split dns example using cname
+# local-zone: "yourhostname.noip.com." redirect
+# local-data: "yourhostname.noip.com. CNAME webserver-2.lan."
+#
+# Static dns entries for hosts not configured by dhcp
+# local-data: "switch.lan. A 192.168.2.100"
+# local-data-ptr: "192.168.2.100 switch.lan."

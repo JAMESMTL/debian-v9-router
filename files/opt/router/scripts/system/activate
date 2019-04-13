@@ -45,15 +45,15 @@ fi
 
 echo
 echo "######################################"
-echo "Remapping quickstart symlinks"
+echo "Remapping config symlinks"
 echo "######################################"
 echo
 
-echo -n "remapping ~/router/quickstart/network_interfaces -> /etc/network/interfaces"
-ln -sf /etc/network/interfaces /root/router/quickstart/network_interfaces && echo ok || echo FAILED
+echo -n "remapping ~/router/config/network_interfaces -> /etc/network/interfaces"
+ln -sf /etc/network/interfaces /root/router/config/network_interfaces && echo ok || echo FAILED
 
-echo -n "remapping ~/router/quickstart/dhcp_base -> /opt/router/dnsmasq/dnsmasq.conf"
-ln -sf /opt/router/dnsmasq/dnsmasq.conf /root/router/quickstart/dhcp_base && echo ok || echo FAILED
+echo -n "remapping ~/router/config/dhcp_base -> /opt/router/dnsmasq/dnsmasq.conf"
+ln -sf /opt/router/dnsmasq/dnsmasq.conf /root/router/config/dhcp_base && echo ok || echo FAILED
 
 echo
 echo "######################################"

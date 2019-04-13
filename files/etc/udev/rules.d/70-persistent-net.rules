@@ -1,2 +1,7 @@
-SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="00:50:56:00:01:01", KERNEL=="ens192", NAME="wan0"
-SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="00:50:56:00:01:02", KERNEL=="ens224", NAME="lan0"
+# UDEV PERSISTENT NET RULES
+# see https://wiki.debian.org/udev
+#
+# Use these rules to remap NIC interface names from predictable names to static names
+
+KERNEL=="ens192", ATTR{address}=="00:50:56:00:01:01", NAME="wan0"
+KERNEL=="ens224", ATTR{address}=="00:50:56:00:01:02", NAME="lan0"

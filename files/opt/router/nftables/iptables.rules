@@ -20,6 +20,7 @@ COMMIT
 -A PREROUTING -i ppp+ -j DNATHOSTS
 -A PREROUTING -i ppp+ -j MINIUPNPD
 -A POSTROUTING -o ppp+ -j MASQUERADE
+-A POSTROUTING -o ovpn+ -j MASQUERADE
 -A POSTROUTING -o wan0.36 -j MASQUERADE
 COMMIT
 *filter
@@ -32,6 +33,7 @@ COMMIT
 -A INPUT -m state --state INVALID -j DROP
 -A INPUT -i wan0.36 -p igmp -j ACCEPT
 -A INPUT -i wan0.36 -p udp -m udp --sport 67 --dport 68 -j ACCEPT
+-A INPUT -i ovpn+ -j DROP
 -A INPUT -i ppp+ -j SERVICES
 -A INPUT -i ppp+ -j DROP
 -A INPUT -i wan+ -j DROP
@@ -47,6 +49,7 @@ COMMIT
 -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A FORWARD -m state --state INVALID -j DROP
 -A FORWARD -i wan0.36 -o lan0 -s 10.2.0.0/16 -d 239.0.0.0/8 -p udp -j ACCEPT
+-A FORWARD -i ovpn+ -j DROP
 -A FORWARD -o lan+ -m set --match-set HOSTS-GLOBAL-V4 dst,dst -j ACCEPT
 -A FORWARD -i ppp+ -o lan+ -j MINIUPNPD
 -A FORWARD -i ppp+ -j DROP

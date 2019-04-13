@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Get version
+sourceVer=$(cat /opt/router/install/.version)
+
+# Get file list from archive
+fileList=$(tar -tvf /opt/router/install/${sourceVer}.tar.gz | awk '{print $6}' | grep -oE '^.*/files/.*' | sed "s/.*-${sourceVer}-.*\/files\///g" | grep -vE '/$')
+
+for listItem in $fileList; do
+
+	echo -n "${listItem} "
+
+	if [ ! -f "/${listItem}" ]; then
+		echo "(missing)"
+	elif [ ! -f "/opt/router/files/${listItem}" ]; then
+		echo "(missing reference file)"
+	else
+		fileLive=$(md5sum -b /${listItem}  | awk '{print $1}')
+		fileOrig=$(md5sum -b /opt/router/files/${listItem} | awk '{print $1}')
+
+		if [  "$fileLive" != "$fileOrig" ]; then
+			echo "(modified)"
+		else
+			echo
+		fi
+	fi
+done

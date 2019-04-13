@@ -2,14 +2,13 @@
 
 sourceDir=$(dirname $0)
 sourceVer=debian-v9-router
-sourceUrl=https://raw.githubusercontent.com/JAMESMTL/${sourceVer}/master
 sourceTar=https://github.com/JAMESMTL/${sourceVer}/tarball/master
 
 dirList=" \
 	/opt/router/files \
 	/opt/router/install \
 	/root/router/action \
-	/root/router/quickstart \
+	/root/router/config \
 "
 
 echo
@@ -56,57 +55,6 @@ service sshd restart && echo ok || echo FAILED
 
 echo
 echo "##########################################################"
-echo "Creating directories"
-echo "##########################################################"
-echo
-
-for listItem in $dirList; do
-	echo -n "creating directory ${listItem} ... "
-	[ ! -d "${listItem}" ] && mkdir -p ${listItem}
-	[ -d "${listItem}" ] && echo ok || echo FAILED
-done
-
-echo
-echo "##########################################################"
-echo "Fetching install files"
-echo "##########################################################"
-echo
-
-# Copy install to /opt/router/install/
-echo -n "copying $0 /opt/router/install/ ... "
-cp $0 /opt/router/install/ && echo ok || echo FAILED
-
-useLocalSource=no
-
-# Detect if local archive exists
-if [ -f "${sourceDir}/${sourceVer}.tar.gz" ]; then
-	while true; do
-		read -p "Local archive detected, use local archive (y/n)? " yn
-		case $yn in
-			[Yy]* )
-				useLocalSource=yes
-				break;;
-			[Nn]* )
-				useLocalSource=no
-				break;;
-		esac
-	done
-	echo
-fi
-
-# Download or use local copy of archive
-if [ $useLocalSource = 'yes' ]; then
-		echo -n "copying ${sourceDir}/${sourceVer}.tar.gz -> /opt/router/install/${sourceVer}.tar.gz ... "
-		cp ${sourceDir}/${sourceVer}.tar.gz /opt/router/install/
-		[ -f "/opt/router/install/${sourceVer}.tar.gz" ] && echo ok || echo FAILED
-else
-		echo -n "fetching /opt/router/install/${sourceVer}.tar.gz ... "
-		wget -q ${sourceTar} -O /opt/router/install/${sourceVer}.tar.gz
-		[ -f "/opt/router/install/${sourceVer}.tar.gz" ] && echo ok || echo FAILED
-fi
-
-echo
-echo "##########################################################"
 echo "Eanbling non-free repo and updating"
 echo "##########################################################"
 echo
@@ -121,7 +69,9 @@ echo "Installing base and utility packages"
 echo "##########################################################"
 echo
 
-apt install -y vlan bridge-utils net-tools ppp ipset traceroute nmap conntrack ndisc6 whois dnsutils mtr iperf3 curl resolvconf sudo apt-transport-https tcpdump ethtool firmware-bnx2x miniupnpd
+apt install -y vlan bridge-utils net-tools ppp ipset traceroute nmap conntrack \
+	ndisc6 whois dnsutils mtr iperf3 curl resolvconf sudo apt-transport-https \
+	tcpdump ethtool firmware-bnx2x
 
 # Detect hypervisor 
 if grep -q hypervisor /proc/cpuinfo; then
@@ -152,7 +102,7 @@ echo "Installing services"
 echo "##########################################################"
 echo
 
-apt install -y unbound dnsmasq inadyn openvpn wide-dhcpv6-client
+apt install -y unbound dnsmasq inadyn openvpn wide-dhcpv6-client miniupnpd
 
 service dnsmasq stop
 service unbound stop
@@ -235,6 +185,59 @@ rm /etc/miniupnpd/* && echo ok || echo FAILED
 
 echo
 echo "##########################################################"
+echo "Creating directories"
+echo "##########################################################"
+echo
+
+for listItem in $dirList; do
+	echo -n "creating directory ${listItem} ... "
+	[ ! -d "${listItem}" ] && mkdir -p ${listItem}
+	[ -d "${listItem}" ] && echo ok || echo FAILED
+done
+
+echo
+echo "##########################################################"
+echo "Fetching install files"
+echo "##########################################################"
+echo
+
+# Copy install to /opt/router/install/
+if [ $sourceDir != "/opt/router/install" ]; then
+	echo -n "copying $0 /opt/router/install/ ... "
+	cp $0 /opt/router/install/ && echo ok || echo FAILED
+fi
+
+useLocalSource=no
+
+# Detect if local archive exists
+if [ -f "${sourceDir}/${sourceVer}.tar.gz" ]; then
+	while true; do
+		read -p "Local archive detected, use local archive (y/n)? " yn
+		case $yn in
+			[Yy]* )
+				useLocalSource=yes
+				break;;
+			[Nn]* )
+				useLocalSource=no
+				break;;
+		esac
+	done
+	echo
+fi
+
+# Download or use local copy of archive
+if [ $useLocalSource = 'yes' ]; then
+		echo -n "copying ${sourceDir}/${sourceVer}.tar.gz -> /opt/router/install/${sourceVer}.tar.gz ... "
+		cp ${sourceDir}/${sourceVer}.tar.gz /opt/router/install/
+		[ -f "/opt/router/install/${sourceVer}.tar.gz" ] && echo ok || echo FAILED
+else
+		echo -n "fetching /opt/router/install/${sourceVer}.tar.gz ... "
+		wget -q ${sourceTar} -O /opt/router/install/${sourceVer}.tar.gz
+		[ -f "/opt/router/install/${sourceVer}.tar.gz" ] && echo ok || echo FAILED
+fi
+
+echo
+echo "##########################################################"
 echo "Extracting archive to /opt/router"
 echo "##########################################################"
 echo
@@ -283,34 +286,69 @@ echo "creating symlinks"
 echo "######################################"
 echo
 
-# Quickstst symlinks
-echo -n "creating /root/router/quickstart/dhcp_base ... "
-ln -sf /opt/router/dnsmasq/dnsmasq.conf.router /root/router/quickstart/dhcp_base && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/dhcp_hosts ... "
-ln -sf /opt/router/dnsmasq/dnsmasq.hosts /root/router/quickstart/dhcp_hosts && echo ok || echo FAILED
+# config cron symlinks
+echo -n "creating /root/router/config/cron_jobs ... "
+ln -sf /etc/cron.d/cron.list /root/router/config/cron_jobs && echo ok || echo FAILED
 
-echo -n "creating /root/router/quickstart/network_forwarding_v4.set ... "
-ln -sf /opt/router/nftables/port_forwarding_v4.set /root/router/quickstart/network_forwarding_v4.set && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/network_forwarding_v6.set ... "
-ln -sf /opt/router/nftables/port_forwarding_v6.set /root/router/quickstart/network_forwarding_v6.set && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/network_interfaces ... "
-ln -sf /etc/network/interfaces.router /root/router/quickstart/network_interfaces && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/network_persistent_rules ... "
-ln -sf /etc/udev/rules.d/70-persistent-net.rules /root/router/quickstart/network_persistent_rules && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/network_pppoe ... "
-ln -sf /etc/ppp/peers/pppoe.conf /root/router/quickstart/network_pppoe && echo ok || echo FAILED
-echo -n "creating /root/router/quickstart/network_wan_up ... "
-ln -sf /opt/router/scripts/system/wan-up /root/router/quickstart/network_wan_up && echo ok || echo FAILED
+# config dhcp symlinks
+echo -n "creating /root/router/config/dhcp_base ... "
+ln -sf /opt/router/dnsmasq/dnsmasq.conf.router /root/router/config/dhcp_base && echo ok || echo FAILED
+echo -n "creating /root/router/config/dhcp_hosts ... "
+ln -sf /opt/router/dnsmasq/dnsmasq.hosts /root/router/config/dhcp_hosts && echo ok || echo FAILED
+echo -n "creating /root/router/config/dhcp_v6-pd_config ... "
+ln -sf /etc/wide-dhcpv6/dhcp6c.conf /root/router/config/dhcp_v6-pd_config && echo ok || echo FAILED
 
-echo -n "creating /root/router/quickstart/dns_split_static ... "
-ln -sf /opt/router/unbound/unbound.static /root/router/quickstart/dns_split_static && echo ok || echo FAILED
+# config ddns symlinks
+echo -n "creating /root/router/config/ddns_he_tunnel ... "
+ln -sf /opt/router/scripts/ddns/ddns-ipv4-he-tunnel /root/router/config/ddns_he_tunnel && echo ok || echo FAILED
+echo -n "creating /root/router/config/ddns_inadyn ... "
+ln -sf /etc/inadyn.conf /root/router/config/ddns_inadyn && echo ok || echo FAILED
 
-echo -n "creating /root/router/quickstart/ddns_he_tunnel ... "
-ln -sf /opt/router/scripts/ddns/ddns-ipv4-he-tunnel /root/router/quickstart/ddns_he_tunnel && echo ok || echo FAILED
+# config dns symlinks
+echo -n "creating /root/router/config/dns_base ... "
+ln -sf /opt/router/unbound/unbound.conf /root/router/config/dns_base && echo ok || echo FAILED
+echo -n "creating /root/router/config/dns_split_static ... "
+ln -sf /opt/router/unbound/unbound.static /root/router/config/dns_split_static && echo ok || echo FAILED
+
+# config firewall symlinks
+echo -n "creating /root/router/config/firewall_dns_redirect_v4.set ... "
+ln -sf /opt/router/nftables/dns_redirect_v4.set /root/router/config/firewall_dns_redirect_v4.set && echo ok || echo FAILED
+echo -n "creating /root/router/config/firewall_dns_redirect_v6.set ... "
+ln -sf /opt/router/nftables/dns_redirect_v6.set /root/router/config/firewall_dns_redirect_v6.set && echo ok || echo FAILED
+echo -n "creating /root/router/config/firewall_forwarding_v4.set ... "
+ln -sf /opt/router/nftables/port_forwarding_v4.set /root/router/config/firewall_forwarding_v4.set && echo ok || echo FAILED
+echo -n "creating /root/router/config/firewall_forwarding_v6.set ... "
+ln -sf /opt/router/nftables/port_forwarding_v6.set /root/router/config/firewall_forwarding_v6.set && echo ok || echo FAILED
+echo -n "creating /root/router/config/firewall_rules_v4 ... "
+ln -sf /opt/router/nftables/iptables.rules /root/router/config/firewall_rules_v4 && echo ok || echo FAILED
+echo -n "creating /root/router/config/firewall_rules_v6 ... "
+ln -sf /opt/router/nftables/ip6tables.rules /root/router/config/firewall_rules_v6 && echo ok || echo FAILED
+
+# config igmpproxy symlinks
+echo -n "creating /root/router/config/igmpproxy_config ... "
+ln -sf /etc/igmpproxy.conf /root/router/config/igmpproxy_config && echo ok || echo FAILED
+
+# config miniupnpd symlinks
+echo -n "creating /root/router/config/miniupnpd_config ... "
+ln -sf /etc/miniupnpd/miniupnpd.conf /root/router/config/miniupnpd_config && echo ok || echo FAILED
+
+# config network symlinks
+echo -n "creating /root/router/config/network_interfaces ... "
+ln -sf /etc/network/interfaces.router /root/router/config/network_interfaces && echo ok || echo FAILED
+echo -n "creating /root/router/config/network_persistent_rules ... "
+ln -sf /etc/udev/rules.d/70-persistent-net.rules /root/router/config/network_persistent_rules && echo ok || echo FAILED
+echo -n "creating /root/router/config/network_pppoe ... "
+ln -sf /etc/ppp/peers/pppoe.conf /root/router/config/network_pppoe && echo ok || echo FAILED
+echo -n "creating /root/router/config/network_wan_up ... "
+ln -sf /opt/router/scripts/system/wan-up /root/router/config/network_wan_up && echo ok || echo FAILED
+
+# config openvpn symlinks
+echo -n "creating /root/router/config/openvpn_config ... "
+ln -sf /etc/openvpn /root/router/config/openvpn_config && echo ok || echo FAILED
 
 # actions symlinks
 echo -n "creating /root/router/action/load-forwarding.sh ... "
-ln -sf /opt/router/scripts/system/load-forwarding /root/router/action/load-forwarding.sh && echo ok || echo FAILED
+ln -sf /opt/router/scripts/system/forwarding-rules /root/router/action/forwarding-rules.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/activate.sh ... "
 ln -sf /opt/router/scripts/system/activate /root/router/action/activate.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/backup.sh ... "
@@ -321,36 +359,8 @@ echo -n "creating /root/router/action/ssh-unlock.sh ... "
 ln -sf /opt/router/scripts/system/ssh-unlock /root/router/action/ssh-unlock.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/ssh-reset.sh ... "
 ln -sf /opt/router/scripts/system/ssh-reset /root/router/action/ssh-reset.sh && echo ok || echo FAILED
-
-echo
-echo "######################################"
-echo "Reloading daemon configs"
-echo "######################################"
-echo
-
-echo -n "disabling autostart of miniupnpd ... "
-update-rc.d miniupnpd disable && echo "ok" || echo "FAILED"
-echo -n "disabling autostart of wide-dhcpv6-client ... "
-update-rc.d wide-dhcpv6-client disable && echo "ok" || echo "FAILED"
-echo -n "reloading daemon configs ... "
-systemctl daemon-reload  && echo "ok" || echo "FAILED"
-
-echo -n "unmasking miniupnpd ... "
-systemctl unmask miniupnpd && echo "ok" || echo "FAILED"
-echo "enabling miniupnpd ... "
-systemctl enable miniupnpd
-
-echo
-echo "######################################"
-echo "creating new ssh keys"
-echo "######################################"
-echo
-
-[ -d "/root/.ssh" ] && rm /root/.ssh/*
-echo -n "generating ssh keys ... "
-ssh-keygen -f /root/.ssh/${USER}@$(cat /etc/hostname) -t rsa -N '' -q && echo "ok" || echo "FAILED"
-echo -n "replacing authorized keys ... "
-cp /root/.ssh/${USER}@$(cat /etc/hostname).pub /root/.ssh/authorized_keys && echo "ok" || echo "FAILED"
+echo -n "creating /root/router/action/filelist.sh ... "
+ln -sf /opt/router/scripts/system/filelist /root/router/action/filelist.sh && echo ok || echo FAILED
 
 echo
 echo "##########################################################"
@@ -441,6 +451,39 @@ if [ $useLocalCopy = 'yes' ]; then
 fi
 
 echo
+echo "######################################"
+echo "Reloading daemon configs"
+echo "######################################"
+echo
+
+echo -n "disabling autostart of miniupnpd ... "
+update-rc.d miniupnpd disable && echo "ok" || echo "FAILED"
+echo -n "Removing miniupnpd init... "
+update-rc.d miniupnpd remove && echo "ok" || echo "FAILED"
+echo -n "disabling autostart of wide-dhcpv6-client ... "
+update-rc.d wide-dhcpv6-client disable && echo "ok" || echo "FAILED"
+echo -n "reloading daemon configs ... "
+systemctl daemon-reload  && echo "ok" || echo "FAILED"
+
+echo -n "unmasking miniupnpd ... "
+systemctl unmask miniupnpd && echo "ok" || echo "FAILED"
+echo "enabling miniupnpd ... "
+systemctl enable miniupnpd
+
+echo
+echo "######################################"
+echo "creating new ssh keys"
+echo "######################################"
+echo
+
+[ -d "/root/.ssh" ] && rm /root/.ssh/*
+echo -n "generating ssh keys ... "
+ssh-keygen -f /root/.ssh/${USER}@$(cat /etc/hostname) -t rsa -N '' -q && echo "ok" || echo "FAILED"
+echo -n "replacing authorized keys ... "
+cp /root/.ssh/${USER}@$(cat /etc/hostname).pub /root/.ssh/authorized_keys && echo "ok" || echo "FAILED"
+
+
+echo
 echo "##########################################################"
 echo "setting permissions"
 echo "##########################################################"
@@ -463,11 +506,11 @@ if [ -s /opt/router/install/.activated ]; then
 	echo "######################################"
 	echo
 
-	echo "remapping ~/router/quickstart/network_interfaces -> /etc/network/interfaces"
-	ln -sf /etc/network/interfaces ~/router/quickstart/network_interfaces
+	echo "remapping ~/router/config/network_interfaces -> /etc/network/interfaces"
+	ln -sf /etc/network/interfaces ~/router/config/network_interfaces
 
-	echo "remapping ~/router/quickstart/dhcp_base -> /opt/router/dnsmasq/dnsmasq.conf"
-	ln -sf /opt/router/dnsmasq/dnsmasq.conf ~/router/quickstart/dhcp_base
+	echo "remapping ~/router/config/dhcp_base -> /opt/router/dnsmasq/dnsmasq.conf"
+	ln -sf /opt/router/dnsmasq/dnsmasq.conf ~/router/config/dhcp_base
 	
 	echo
 	echo "The router will be fully active the next time you boot."
@@ -479,7 +522,7 @@ else
 	echo "Finished base install"
 	echo "######################################"
 	echo
-	echo "Please edit the files linked in the ~/router/quickstart directory then run the"
+	echo "Please edit the files linked in the ~/router/config directory then run the"
 	echo "activate script."
 	echo
 	echo "~/router/action/activate.sh"
