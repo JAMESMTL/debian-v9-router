@@ -1,0 +1,67 @@
+#!/bin/sh
+
+echo
+echo "##########################################################"
+echo "Checking permissions"
+echo "##########################################################"
+echo
+
+echo -n "Verifying user ... "
+if [ ${USER} != 'root' ]; then
+	echo FAILED
+	echo Not running as root, exiting.
+	echo
+	exit
+else
+	echo ok
+fi
+
+echo
+echo "##########################################################"
+echo "Checking activation status"
+echo "##########################################################"
+echo
+
+# Test if is activated following restore
+if [ ! -s /opt/router/install/.activated ]; then
+	echo "Router not activated ... Exiting"
+	exit
+fi
+
+echo activated ...
+
+# Get version
+sourceVer=$(cat /opt/router/install/.version)
+
+echo
+echo "##########################################################"
+echo "Restoring files"
+echo "##########################################################"
+echo
+
+echo "This will overwrite your files with the backup"
+
+while true; do
+	read -p "Proceed (y/n)? " yn
+	case $yn in
+		[Yy]* )
+			echo
+			break;;
+		[Nn]* )
+			echo
+			echo Exiting ...
+			exit
+			break;;
+	esac
+done
+
+tar -C / -xvf /opt/router/install/${sourceVer}.tar.gz --strip=2 | sed "s/.*-${sourceVer}-.*\/files\///g" | grep -vE '/$'
+
+tar -C / -xvf /opt/router/install/${sourceVer}-local.tar.gz
+
+echo
+echo "##########################################################"
+echo "Done"
+echo "##########################################################"
+echo
+echo "Backup restored. Not all settings will be active until you reboot"

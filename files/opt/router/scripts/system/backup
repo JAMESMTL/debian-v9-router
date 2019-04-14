@@ -16,6 +16,20 @@ else
 	echo ok
 fi
 
+echo
+echo "##########################################################"
+echo "Checking activation status"
+echo "##########################################################"
+echo
+
+# Test if is activated following restore
+if [ ! -s /opt/router/install/.activated ]; then
+	echo "Router not activated ... Exiting"
+	exit
+fi
+
+echo activated ...
+
 # Get version
 sourceVer=$(cat /opt/router/install/.version)
 

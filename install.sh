@@ -347,20 +347,22 @@ echo -n "creating /root/router/config/openvpn_config ... "
 ln -sf /etc/openvpn /root/router/config/openvpn_config && echo ok || echo FAILED
 
 # actions symlinks
-echo -n "creating /root/router/action/load-forwarding.sh ... "
-ln -sf /opt/router/scripts/system/forwarding-rules /root/router/action/forwarding-rules.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/activate.sh ... "
 ln -sf /opt/router/scripts/system/activate /root/router/action/activate.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/backup.sh ... "
 ln -sf /opt/router/scripts/system/backup /root/router/action/backup.sh && echo ok || echo FAILED
-echo -n "creating /root/router/action/ssh-lock.sh ... "
-ln -sf /opt/router/scripts/system/ssh-lock /root/router/action/ssh-lock.sh && echo ok || echo FAILED
-echo -n "creating /root/router/action/ssh-unlock.sh ... "
-ln -sf /opt/router/scripts/system/ssh-unlock /root/router/action/ssh-unlock.sh && echo ok || echo FAILED
-echo -n "creating /root/router/action/ssh-reset.sh ... "
-ln -sf /opt/router/scripts/system/ssh-reset /root/router/action/ssh-reset.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/filelist.sh ... "
 ln -sf /opt/router/scripts/system/filelist /root/router/action/filelist.sh && echo ok || echo FAILED
+echo -n "creating /root/router/action/forwarding-rules.sh ... "
+ln -sf /opt/router/scripts/system/forwarding-rules /root/router/action/forwarding-rules.sh && echo ok || echo FAILED
+echo -n "creating /root/router/action/restore.sh ... "
+ln -sf /opt/router/scripts/system/restore /root/router/action/restore.sh && echo ok || echo FAILED
+echo -n "creating /root/router/action/ssh-lock.sh ... "
+ln -sf /opt/router/scripts/system/ssh-lock /root/router/action/ssh-lock.sh && echo ok || echo FAILED
+echo -n "creating /root/router/action/ssh-reset.sh ... "
+ln -sf /opt/router/scripts/system/ssh-reset /root/router/action/ssh-reset.sh && echo ok || echo FAILED
+echo -n "creating /root/router/action/ssh-unlock.sh ... "
+ln -sf /opt/router/scripts/system/ssh-unlock /root/router/action/ssh-unlock.sh && echo ok || echo FAILED
 
 echo
 echo "##########################################################"
@@ -481,7 +483,6 @@ echo -n "generating ssh keys ... "
 ssh-keygen -f /root/.ssh/${USER}@$(cat /etc/hostname) -t rsa -N '' -q && echo "ok" || echo "FAILED"
 echo -n "replacing authorized keys ... "
 cp /root/.ssh/${USER}@$(cat /etc/hostname).pub /root/.ssh/authorized_keys && echo "ok" || echo "FAILED"
-
 
 echo
 echo "##########################################################"

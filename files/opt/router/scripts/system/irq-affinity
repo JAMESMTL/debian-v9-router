@@ -1,5 +1,8 @@
 #!/bin/bash
 
+LAN_INTERFACE=lan0
+WAN_INTERFACE=wan0
+QUEUENAME=
 TOTALCPU=$(grep -c processor /proc/cpuinfo)
 
 if [ "$TOTALCPU" -lt 2 ]; then
@@ -7,35 +10,32 @@ if [ "$TOTALCPU" -lt 2 ]; then
 	exit 0
 fi
 
-INTERFACE=wan0
-
-# set interface to first cpu
-grep -E "${INTERFACE}$" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+# set wan interface to first cpu
+grep -E "${WAN_INTERFACE}$" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
 	printf "%x\n" 1 > /proc/irq/${INTERRUPT}/smp_affinity
 done
 
-# set each queue to a cpu
+# set lan interface to last cpu
+grep -E "${LAN_INTERFACE}$" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+	printf "%x\n" $(( 2 ** ($TOTALCPU - 1) )) > /proc/irq/${INTERRUPT}/smp_affinity
+done
+
+# Check if queue name is set or exit
+[ -z "$QUEUENAME"] && exit 0
+
+# set each wan queue to a cpu
 cat /proc/cpuinfo | grep processor | awk '{ print $3 }' | while read CPU; do
-	grep -E "${INTERFACE}-[a-zA-Z0-9]*-${CPU}" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+	grep -E "${WAN_INTERFACE}-${QUEUENAME}-${CPU}" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
 		printf "%x\n" $(( 2 ** $CPU )) > /proc/irq/${INTERRUPT}/smp_affinity
 	done
 done
 
-INTERFACE=lan0
-
-# set interface to last cpu
-grep -E "${INTERFACE}$" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
-	printf "%x\n" $(( 2 ** ($TOTALCPU - 1) )) > /proc/irq/${INTERRUPT}/smp_affinity
-done
-
-
-# set each queue to a cpu reversed
+# set each lan queue to a cpu reversed
 cat /proc/cpuinfo | grep processor | awk '{ print $3 }' | while read CPU; do
-	grep -E "${INTERFACE}-[a-zA-Z0-9]*-${CPU}" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+	grep -E "${LAN_INTERFACE}-${QUEUENAME}-${CPU}" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
 		printf "%x\n" $(( 2 ** ($TOTALCPU - 1 - $CPU) )) > /proc/irq/${INTERRUPT}/smp_affinity
 	done
 done
-
 
 logger -t irq-affinity[$$] -p daemon.info set affinity of network adapters
 

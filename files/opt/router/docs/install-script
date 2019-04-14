@@ -60,6 +60,6 @@ between stock config files and a working config.
 
 16. Install complete!
 
-Use WinSCP to edit the config symlinks located in /root/router/quickstart
+Use WinSCP to edit the config symlinks located in /root/router/config
 
 then run the activate script ~/router/action/activate.sh

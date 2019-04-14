@@ -8,7 +8,7 @@ See rufus https://rufus.ie/
 
 if you are installing as a VM I suggest the following specs
 
-	2 vCPU (min) - 2 core 1 socket
+	2 vCPU (or more) - 2 core 1 socket
 	2-4 GB Memory
 	16 GB HD (thin)
 	NIC #1 (WAN) assign mac 00:50:56:00:01:01 (WAN)
@@ -17,17 +17,20 @@ if you are installing as a VM I suggest the following specs
 If you are not using esxi or do not assign the above mac addresses, you
 will have to edit the udev persistent net rules after install.
  
-3. Install debian [TIME < 5 minutes]
+2. Install debian
 
-DO A REGULAR TEXT INSTALL AND NOT A GRAPHICAL INSTALL
+select defaults for most except:
 
-select defaults for most except
+a) DO A REGULAR TEXT INSTALL AND NOT A GRAPHICAL INSTALL
+b) configure the network: Chose the your lan interface
+c) configure the network: chose your router's unique hostname
+d) configure the network: leave domain name blank
+e) set up users and passwords: set root password
+f) set up users and passwords: create user account and set password 
+   - I will refer to this account as the build account
+   - you will only log in initially with this account until root is unlocked over ssh
+g) partition disks: write changes to disk yes
+h) software selection:  only select ssh server + standard system utilities. disable everything else
+i) Install the GRUB boot on a hard disk: select drive probably /dev/sda
 
-a) during install configure the network using second NIC (possibly ens224)
-b) hostname whatever
-c) domain name blank
-d) new user whatever (i use build and will call user account the build account).
-   you will only log in initially with this account until root is unlocked over ssh
-e) software selection (only select ssh server + standard system utilities. disable everything else)
-f) bootloader probably /dev/sda
-
+done!
