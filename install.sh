@@ -345,6 +345,8 @@ ln -sf /opt/router/scripts/system/wan-up /root/router/config/network_wan_up && e
 # config openvpn symlinks
 echo -n "creating /root/router/config/openvpn_config ... "
 ln -sf /etc/openvpn /root/router/config/openvpn_config && echo ok || echo FAILED
+echo -n "creating /root/router/config/openvpn_defaults ... "
+ln -sf /etc/default/openvpn /root/router/config/openvpn_defaults && echo ok || echo FAILED
 
 # actions symlinks
 echo -n "creating /root/router/action/activate.sh ... "
