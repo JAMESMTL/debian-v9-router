@@ -458,8 +458,6 @@ echo "Reloading daemon configs"
 echo "######################################"
 echo
 
-echo -n "disabling autostart of miniupnpd ... "
-update-rc.d miniupnpd disable && echo "ok" || echo "FAILED"
 echo -n "Removing miniupnpd init... "
 update-rc.d miniupnpd remove && echo "ok" || echo "FAILED"
 echo -n "disabling autostart of wide-dhcpv6-client ... "
