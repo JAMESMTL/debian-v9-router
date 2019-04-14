@@ -55,6 +55,18 @@ service sshd restart && echo ok || echo FAILED
 
 echo
 echo "##########################################################"
+echo "Creating directories"
+echo "##########################################################"
+echo
+
+for listItem in $dirList; do
+	echo -n "creating directory ${listItem} ... "
+	[ ! -d "${listItem}" ] && mkdir -p ${listItem}
+	[ -d "${listItem}" ] && echo ok || echo FAILED
+done
+
+echo
+echo "##########################################################"
 echo "Eanbling non-free repo and updating"
 echo "##########################################################"
 echo
@@ -182,18 +194,6 @@ echo -n "rm /etc/init.d/miniupnpd ... "
 rm /etc/init.d/miniupnpd && echo ok || echo FAILED
 echo -n "rm /etc/miniupnpd/* ... "
 rm /etc/miniupnpd/* && echo ok || echo FAILED
-
-echo
-echo "##########################################################"
-echo "Creating directories"
-echo "##########################################################"
-echo
-
-for listItem in $dirList; do
-	echo -n "creating directory ${listItem} ... "
-	[ ! -d "${listItem}" ] && mkdir -p ${listItem}
-	[ -d "${listItem}" ] && echo ok || echo FAILED
-done
 
 echo
 echo "##########################################################"
