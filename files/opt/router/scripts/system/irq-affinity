@@ -11,12 +11,12 @@ if [ "$TOTALCPU" -lt 2 ]; then
 fi
 
 # set wan interface to first cpu
-grep -E "${WAN_INTERFACE}$" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+grep -E "${WAN_INTERFACE}" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
 	printf "%x\n" 1 > /proc/irq/${INTERRUPT}/smp_affinity
 done
 
 # set lan interface to last cpu
-grep -E "${LAN_INTERFACE}$" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
+grep -E "${LAN_INTERFACE}" /proc/interrupts | awk '{print $1}'| awk -F':' '{print $1}' | while read INTERRUPT; do
 	printf "%x\n" $(( 2 ** ($TOTALCPU - 1) )) > /proc/irq/${INTERRUPT}/smp_affinity
 done
 

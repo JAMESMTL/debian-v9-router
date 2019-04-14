@@ -61,7 +61,26 @@ tar -C / -xvf /opt/router/install/${sourceVer}-local.tar.gz
 
 echo
 echo "##########################################################"
+echo "setting permissions"
+echo "##########################################################"
+echo
+
+echo -n "chmod 755 /etc/ppp/ip-down.local ... "
+chmod 755 /etc/ppp/ip-down.local && echo ok || echo FAILED
+echo -n "chmod 755 /etc/ppp/ip-up.local ... "
+chmod 755 /etc/ppp/ip-up.local && echo ok || echo FAILED
+echo -n "chmod 755 -R /opt/router/install/*.sh ... "
+chmod 755 -R /opt/router/install/*.sh && echo ok || echo FAILED
+echo -n "chmod 755 -R /opt/router/scripts ... "
+chmod 755 -R /opt/router/scripts && echo ok || echo FAILED
+
+echo
+echo "##########################################################"
 echo "Done"
 echo "##########################################################"
 echo
 echo "Backup restored. Not all settings will be active until you reboot"
+
+# Store version
+echo "$sourceVer" > /opt/router/install/.version
+cp /opt/router/install/.version /opt/router/files/opt/router/install/
