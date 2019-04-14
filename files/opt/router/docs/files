@@ -1,0 +1,199 @@
+FILE LIST
+
+The following files will be installed by the script
+
+you can browse the files directly here:
+https://github.com/JAMESMTL/debian-v9-router/tree/master/files
+
+etc/cron.d/cron.list
+    This file contains additional cron jobs. Specifically a cron to update
+    /opt/router/unbound/named.cache weekly
+
+etc/default/dnsmasq
+etc/default/miniupnpd
+etc/default/openvpn
+etc/default/wide-dhcpv6-client
+	These files contain default parameters to be used when starting the services
+
+etc/dhcp/dhclient-exit-hooks 
+	This script is executed when the router aquires a dhcp lease.
+	The script will deny setting the iptv interface as the default route, it
+	will capture the dhcp lease information and save it to /tmp/sysvars/iptv-...,
+	and will create dynamic dns server entries for dnsmasq to use with bell iptv
+	receivers
+
+etc/igmpproxy.conf
+	igmpproxy config file setting for iptv multicast
+	
+etc/inadyn.conf
+	DynDNS client config file
+	
+etc/iproute2/rt_tables 
+	routing table mapping file. table 200 mapped to he-net
+
+etc/miniupnpd/miniupnpd.conf
+	miniupnpd config file
+
+etc/modules
+	kernel modules to be loaded at boot time
+
+etc/network/interfaces
+etc/network/interfaces.router (temp config file)
+	This is the network interfaces file.
+
+etc/ppp/ip-down.local
+	Script file executed every time any ppp (pppoe) interface goes down
+
+etc/ppp/ip-up.local 
+	Script file executed ecery time any ppp (pppoe) interface is brought up.
+	It will save pppoe ip, route to /etc/sysvars/wan... and will call the wan
+	up script
+
+etc/ppp/peers/pppoe.conf
+	pppoe config file. Your bell b1 usercode and password go here
+
+etc/rc.local
+	script run on boot. sets a few settings
+
+etc/rsyslog.conf
+	syslog config file. Enable precision timestamps
+
+etc/sysctl.d/10-router.conf
+	kernel parameters set at boot. Enable forwarding etc.
+
+etc/udev/rules.d/70-persistent-net.rules
+	udev persistent network rules. This is where you rename network interfaces.
+
+etc/unbound/unbound.conf.d/router.conf 
+	unbound config file which loads /opt/router/unbound/uncound.conf
+
+etc/wide-dhcpv6/dhcp6c.conf 
+	dhcpv6-pd client config file. not need until bell enables IPv6
+
+lib/systemd/system/miniupnpd.service 
+	systemd service startup config for miniupnpd
+
+opt/router/dnsmasq/dnsmasq.conf
+opt/router/dnsmasq/dnsmasq.conf.router (temp config file)
+	dnsmasq config file. dnsmasq is responsible for dhcp, dhcpv6, RAs, and
+	local lan (.lan) stub dns services (using dhcp client names)
+
+opt/router/dnsmasq/dnsmasq.hosts
+	dhcp host reservation file
+
+opt/router/dnsmasq/dnsmasq.resolv
+	dnsmasq resolv file (not used)
+
+opt/router/docs/files
+	list of files installed by the script
+
+opt/router/docs/install-debian 
+	quick instructions on how to intsall debian for use with the script 
+	
+opt/router/docs/install-script 
+	quick summary of what the install script does
+	
+opt/router/docs/packages
+	list of pckages installed by the script
+
+opt/router/install/.activated
+opt/router/install/.extras 
+opt/router/install/.version
+	flags used by the scripts
+
+opt/router/nftables/README
+	warning about use of .rules and .set extensions
+	
+opt/router/nftables/dns_redirect_v4.set
+	ipset containing local hosts (by ip) you want to redirect IPv4 dns queries
+	to the router even if they use a fixed address such as 8.8.8.8
+	
+opt/router/nftables/dns_redirect_v6.set 
+	ipset containing local hosts (by ip) you want to redirect IPv6 dns queries
+	to the router even if they use a fixed address such as 2001:4860:4860::8888
+	
+opt/router/nftables/ip6tables.rules
+	IPv6 firewall rules
+
+opt/router/nftables/iptables.rules
+	IPv4 firewall rules
+	
+opt/router/nftables/port_forwarding_v4.set
+	ipset containting IPv4 port forwarding rules
+
+opt/router/nftables/port_forwarding_v6.set
+	ipset containting IPv4 port forwarding rules
+	
+opt/router/scripts/ddns/ddns-ipv4-he-tunnel
+	simple ddns script for HE.net tunnel 
+
+opt/router/scripts/services/dnsmasq-router
+	simple script to create router.lan host record with IPv6 local link address
+	dig aaaa router.lan will result local link + IPv6 if available
+
+opt/router/scripts/services/named-cache
+	script to updated named.cache file
+
+opt/router/scripts/system/activate
+	script to copy over the temporary network interface and dhcp server config
+	files then remap symlinks
+
+opt/router/scripts/system/backup
+	script that will create an archive of files installed by the script that have
+	been modified by the user.
+	
+	WARNING it will only backup files installed by the script not additional files
+	created by the user.
+
+opt/router/scripts/system/filelist
+	script that will list all the file installed by the script and it identify
+	files that are missing from the system and those that have been modified
+	since installation
+	
+opt/router/scripts/system/forwarding-rules
+	script to reload the forwadring ipsets and regenerate the firewall
+	DNATHOSTS entries
+
+opt/router/scripts/system/irq-affinity
+	script that will assign wan and lan interface affinity if 2+ cores
+	can be used to spread queues if mutlitple cores exits. ex fp for bnx2x nic
+
+opt/router/scripts/system/restore
+	script that will restore the files from the original install archive of
+	as well as the files last backed up by the user.
+	
+	WARNING it will only restore files installed by the script not additional files
+	created by the user.
+	
+opt/router/scripts/system/ssh-lock
+	script that will disable ssh password authentication and enable pubkey
+	authentication
+	
+	WARNING: make sure you get the ssh rsa private key ~/.ssh/root@hostname first
+	or will lock yourself out via ssh
+	
+opt/router/scripts/system/ssh-reset
+	script that will enable ssh password authentication and disable pubkey 
+	authentication, will delete the files fromm ~/.ssh, and will then
+	generate a new set of keys.
+
+opt/router/scripts/system/ssh-unlock
+	script that will enable ssh password authentication and disable pubkey 
+	authentication.
+
+opt/router/scripts/system/wan-down
+	script that is run when wan down occurs
+	
+opt/router/scripts/system/wan-up
+	script that is run when wan-up occurs. the script will restart certain serrvices,
+	load port forwarding and dns redirection rules and call a few utility scripts
+	
+opt/router/unbound/named.cache
+	https://www.internic.net/domain/named.root
+
+opt/router/unbound/unbound.conf
+	unbound config file. unbound is responsible for dns services and is configured
+	as a resolving name server.
+	
+opt/router/unbound/unbound.static 
+	user split and staic dns config settings

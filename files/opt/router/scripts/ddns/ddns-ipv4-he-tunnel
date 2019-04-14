@@ -50,9 +50,17 @@ MAX_TIME=10
 
 DATEFMT="+%a %b %d %Y %T %Z"
 
-# Call init script
-INITFILE=_functions
-[ -f $(dirname $0)/${INITFILE} ] && . $(dirname $0)/${INITFILE} || exit
+# Set Path
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Get Time Zone
+if [ -z $TZ ]; then
+	if [ -s /tmp/TZ ]; then
+		TZ=$(cat /tmp/TZ)
+	elif [ -s /etc/timezone ]; then
+		TZ=$(cat /etc/timezone)
+	fi
+fi
 
 [ -z "$DDNS_REQUEST" ] && exit
 [ -z "$DDNS_IF" ] && exit
@@ -78,20 +86,18 @@ else
 	DDNS_IP=$(ifconfig $DDNS_IF | grep "inet " | awk '{ print $2 }')
 fi
 
+DDNS_UPDATE=true
+
 if [ -z "$DDNS_IP" ]; then
 	echo $(TZ=$TZ date "$DATEFMT"): Failed: IP Address Not Found >> ${DDNS_CACHE_PATH}/${HOST_NAME}.log
 	exit
 elif [ ! -s ${DDNS_CACHE_PATH}/${HOST_NAME}.cache ]; then
-	DDNS_UPDATE=true
 	DDNS_LOG="Send Request: No Cache File"
 elif [ $(cat ${DDNS_CACHE_PATH}/${HOST_NAME}.cache) != ${DDNS_IP} ]; then
-	DDNS_UPDATE=true
 	DDNS_LOG="Send Request: New IP Detected"
 elif [ ! -s ${DDNS_CACHE_PATH}/${HOST_NAME}.date ]; then
-	DDNS_UPDATE=true
 	DDNS_LOG="Send Request: Last Update Unknown"
 elif [ $(($(cat ${DDNS_CACHE_PATH}/${HOST_NAME}.date) + (86400 * ${DDNS_UPDATE_DAYS}))) -lt $(date +%s) ]; then
-	DDNS_UPDATE=true
 	DDNS_LOG="Send Request: Forced Update"
 else
 	DDNS_UPDATE=false

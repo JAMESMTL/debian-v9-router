@@ -1,4 +1,4 @@
-INSTALL DEBIAN
+DEBIAN NET INSTALL
 
 1. download debian stretch here:
 https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.8.0-amd64-netinst.iso
@@ -15,11 +15,12 @@ if you are installing as a VM I suggest the following specs
 	NIC #2 (LAN) assign mac 00:50:56:00:01:02 (LAN)
  
 If you are not using esxi or do not assign the above mac addresses, you
-will have to edit the udev persistent net rules after install.
+will have to edit the udev persistent net rules after install to match your
+actual interfaces.
  
 2. Install debian
 
-select defaults for most except:
+select defaults for most, except:
 
 a) DO A REGULAR TEXT INSTALL AND NOT A GRAPHICAL INSTALL
 b) configure the network: Chose the your lan interface

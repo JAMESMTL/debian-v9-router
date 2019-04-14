@@ -35,6 +35,7 @@ ip route add 10.178.0.0/16 via $GATEWAY dev ppp0 2>/dev/null
 cat /opt/router/nftables/dns_redirect_*.set | ipset restore
 
 # Restart WAN dependant services
+service dnsmasq restart
 service miniupnpd restart
 #service wide-dhcpv6-client restart
 

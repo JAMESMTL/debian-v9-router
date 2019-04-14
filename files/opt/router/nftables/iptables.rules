@@ -1,4 +1,4 @@
-# IPV6 FIREWALL RULES
+# IPV4 FIREWALL RULES
 # see http://ipset.netfilter.org/iptables.man.html
 *raw
 :PREROUTING ACCEPT [0:0]
