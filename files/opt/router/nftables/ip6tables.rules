@@ -1,3 +1,5 @@
+# IPV6 FIREWALL RULES
+# see http://ipset.netfilter.org/ip6tables.man.html
 *raw
 :PREROUTING ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
@@ -52,6 +54,7 @@ COMMIT
 -A FORWARD -i wan+ -j DROP
 -A FORWARD -o ppp+ -j ACCEPT
 -A FORWARD -o he-net -j ACCEPT
+-A FORWARD -o ovpn+ -j ACCEPT
 -A FORWARD -i tun+ -o lan0 -j ACCEPT
 -A FORWARD -j REJECT
 #-A SERVICES -p tcp -m tcp --dport 22 -j ACCEPT
