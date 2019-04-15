@@ -122,13 +122,13 @@ opt/router/nftables/port_forwarding_v4.set
 	ipset containting IPv4 port forwarding rules
 
 opt/router/nftables/port_forwarding_v6.set
-	ipset containting IPv4 port forwarding rules
+	ipset containting IPv6 port forwarding rules
 	
 opt/router/scripts/ddns/ddns-ipv4-he-tunnel
 	simple ddns script for HE.net tunnel 
 
 opt/router/scripts/services/dnsmasq-router
-	simple script to create router.lan host record with IPv6 local link address
+	script to create router.lan host record with IPv6 local link address
 	dig aaaa router.lan will result local link + IPv6 if available
 
 opt/router/scripts/services/named-cache

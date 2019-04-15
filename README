@@ -1,3 +1,289 @@
-Sample debian router for Bell FTTH with iptv
+BUILD A DEBIAN LINUX ROUTER FROM SCRATCH FOR BELL FTTH INTERNET & TV
+A How-to by example using an install script
 
-wget -q -O /tmp/install.sh https://raw.githubusercontent.com/JAMESMTL/debian-v9-router/master/install.sh && sh /tmp/install.sh
+Every once in a while I'll get asked how to build a router using linux. The
+problem people seem to have is not a lack of information on how to go about
+it but an overload of conflicting how-tos. So I started thinking about
+putting together yet another how-to but never really got motivated.
+
+And then, upnatom posted his posted his awesome patch for BCM57810S based NICs
+https://www.dslreports.com/forum/r32230041-Internet-Bypassing-the-HH3K-up-to-2-5Gbps-using-a-BCM57810S-NIC
+
+This was a game changer for those of us on Bell FTTH looking to sync with the
+Bell SFP ONTs at 2.5G without having to purchase an UBNT ES-16-XG. This patch
+can be built for either linux or or bsd (pfsense). If pfsense is not for
+you, then linux is the only option. This brings us back full circle, how to
+build a router using linux?
+
+So I started off building a how-to, you know a simple list of install this and
+configure that. This method works fine but take forever and at the end of the
+day the user will probably just end up copy/pasting directly from the how-to.
+
+So instead of putting together a simple how-to, I decided to wrap it up into
+an install script + archive of preconfigured config files + utility scripts
+ready for Bell FTTH internet and iptv. Using this script a user can quickly
+build a fully functional router that you can play with and dig into. 
+The router can be built from scratch in less than 15 minutes.
+
+As this is also a how-to let's start by looking at the install script. It's
+a super simple script, most of which is dedicated to user feedback and
+making copies of all the files so that the user can compare the original files
+with a working config.
+
+The actual script can be found here:
+https://github.com/JAMESMTL/debian-v9-router/blob/master/install.sh
+
+Summary of what the script does:
+https://github.com/JAMESMTL/debian-v9-router/blob/master/files/opt/router/docs/install-script
+
+List of the packages the script will install:
+https://github.com/JAMESMTL/debian-v9-router/blob/master/files/opt/router/docs/packages
+
+List of the config files and utility scripts that will be installed:
+https://github.com/JAMESMTL/debian-v9-router/blob/master/files/opt/router/docs/files
+
+You can browse all of the files here:
+https://github.com/JAMESMTL/debian-v9-router/tree/master/files
+
+Before getting into the how-to part here are some design choices I made:
+
+With the upcomming debian 10 release, debian will switch from using the
+iptables framework to the nftables framework (next gen iptables) which
+introduces native support for sets, dictionaries, etc as part of the
+underlying framework.
+
+So keeping that in mind, I used ipsets instead of traditional iptables
+rules for both port forwarding and forced dns redirection.
+
+What may be even more interesting with nftables are improvements
+in it's efficientcy and the introdution of flowtables, native
+offloading (fastpath) for linux.
+
+https://wiki.nftables.org/wiki-nftables/index.php/Main_Page
+https://www.kernel.org/doc/Documentation/networking/nf_flowtable.txt
+
+Another design choice I made which differs significatly with
+how most people who bypass the hh3k is how i deal with the iptv dns queries.
+Most guides I've seen forward a few zones such as *.iptv.bell.ca to bell's
+10.2/16 dns servers. I take a different approach in that I pass bell's 10.2/16
+dns servers directly to the receivers. The up side to this approach is that iptv
+will continue working even if bell changes the required dns zones. The down
+side is that you have to add the receivers mac address to the dhcp server's
+dhcp host file. This is a one time entry which is a simple as
+
+d4:0a:a9:21:fc:a7,BELLPVR,set:iptv-dns
+
+name the device with xx mac address BELLPVR (or whatever), set the iptv-dns tag
+and your done. Of course if you prefer the other approach you can just add the
+required forward zones to the base unbound dns config.
+
+Another design choice I made was to get everything needed for Bell IPv6 ready
+from the get go. So every is configured for IPv6 either via dhcpv6-pd (bell) or
+using an HE.net 6in4 tunnel. HE.net has it's own table so those rules need to be
+configured instead of making HE the default route. This way both can co-exist
+once Bell starts providing service.
+
+SO LET"S GET TO IT ALREADY!
+
+First off you will need a couple of tools. WinSCP to remotely edit files on the
+router, and to transfer files back and forth. I sugest WinSCP because it will follow
+symlinks. The other tool you will need is your favorite ssh client. It's easier to
+work with ssh than on the console as you can easily copy/paste.
+
+We will be doing a net install of debian meaning the VM or target device needs
+internet access for the install. Both to install additional packackages and to
+download the script and archive file. While an offline install is possile I
+will not get into that here. Once the target VM or device is configured you
+will activate it, as in enable some needed configs such as setting the static
+address of 192.168.2.1 and to enable dhcp services.
+
+Step 1 - Install a fresh copy of debian server to your target VM or device.
+
+	If you don't dilly dally you can install a fresh copy of debian in about
+	3-5 minutes
+
+    Here are is a quick debian install guide. Seriously don't try and get all
+	fancy, all you want is a basic install.
+	
+	https://github.com/JAMESMTL/debian-v9-router/blob/master/files/opt/router/docs/install-debian
+	
+Step 2 - Log into the console as root OR via ssh using the build account (user)
+	and run 
+	
+	SU 
+	
+	to get root access.
+	
+	note: you may need to log into the console to get the device IP prior to
+	logging in via ssh.
+
+Step 3 - Download and run the install script
+
+	wget -q -O /tmp/install.sh https://raw.githubusercontent.com/JAMESMTL/debian-v9-router/master/install.sh && sh /tmp/install.sh
+
+	You may be asked if you want to install open-vm-tools if a hypervisor is
+	detected.
+	
+	Press enter for all of the package configuration prompts (blue screen).
+	Don't waste your time entering anything as the config files will
+	wipe out anything you enter anyways.
+	
+	Total script execution time is about 2 minutes
+	
+Step 4 - Configure the router
+
+	Because the firewall rules and services are configured with wan interfaces
+	named wan0, wan1, etc and lan interfaces named lan0, lan1 etc you will
+	need to map the your actual interface names to that pattern. First off you
+	need to know your interface names and macs so run
+	
+	ip a
+	
+	to get that information. ex:
+	
+	1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1
+		link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+		inet 127.0.0.1/8 scope host lo
+			valid_lft forever preferred_lft forever
+		inet6 ::1/128 scope host 
+			valid_lft forever preferred_lft forever
+	2: ens192: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+		link/ether 00:0c:29:66:25:e5 brd ff:ff:ff:ff:ff:ff
+	3: ens224: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+		link/ether 00:0c:29:66:25:ef brd ff:ff:ff:ff:ff:ff
+		inet 192.168.2.228/24 brd 192.168.2.255 scope global ens224
+			valid_lft forever preferred_lft forever
+		inet6 fe80::20c:29ff:fe66:25ef/64 scope link 
+			valid_lft forever preferred_lft forever
+
+	once you have that information log into the the VM or device using WinSCP
+	and navigate to the /root/router/config directory
+	
+	in that directory you will find symlinks to all the basic config files
+	which you can edit directly by opening them up in WinSCP
+	
+	To get up and running start with:
+	
+	a) edit persistent network interace names
+	   ~/router/config/network_persistent_rules
+	   
+	   so that your lan0 and wan0 devices match your interface names ex.
+	   
+	   KERNEL=="ens192", ATTR{address}=="00:0c:29:66:25:e5", NAME="wan0"
+	   KERNEL=="ens224", ATTR{address}=="00:0c:29:66:25:ef", NAME="lan0"
+	   
+	b) edit your bell pppoe credentials (user & pass)
+	   ~/router/config/network_pppoe
+	   
+	You now have configured all you need to configure for bell internet.
+	You can configure more settings but I would suggest simply start
+	with internet.
+	
+	You now need to run the activate script. This script will copy the
+	temporary network interface config where the device gets an ip via dhcp
+	to the static address of 192.168.2.1
+	
+	and to enable dhcp services. run the following
+	~/router/action/activate.sh
+	
+	The router WILL NOW SHUTDOWN!
+	
+	The next time it starts it will act as a router so you need to shutdown
+	your existing router before restart the new one.
+	
+HOW-TO: Enable iptv
+
+	a) edit ~/router/config/network_interfaces
+	   - remove comments from iptv interface section
+	   
+	b) edit ~/router/config/dhcp_hosts
+	   - add receivers to iptv-dns group (tag)
+	   
+	c) reboot
+	
+HOW-TO: Enable port forwarding
+
+	a) edit ~/router/config/firewall_forwarding_v4.set
+	     or ~/router/config/firewall_forwarding_v6.set
+	   - add rules
+
+	b) run ~/router/action/forwarding-rules.sh to reload rules
+
+HOW-TO: Enable HE IPv6 tunnel
+
+	a) edit ~/router/config/network_interfaces
+	   - edit he-net interface section
+	   - replace address value of 2001:db8:1:1::2 with HE Client IPv6 Address
+	   - replace endpoint value of 216.66.38.58 with HE Server IPv4 Address
+	   - replace rule prefix of 2001:db8:100::/48 with HE Routed IPv6 Prefix
+	
+	b) edit lan0 interface section
+	   - replace address value of 2001:db8:100:1::1 with an ip+prefix from your routed range
+	   - add route for that prefix to interface
+	
+	c) edit ~/router/config/dhcp_base
+	   - uncomment ipv6 dhcp-range for lan0 interface (config as desired)
+	
+	d) edit ~/router/config/ddns_he_tunnel
+	   - replace henet_username, henet_prefix_pass, and he_host_999999
+	     where henet_prefix_pass = update key found on the adavnce tab of the HE tunnel page
+	     where he_host_999999 = tunnel id or hostnum found at end of HE DDNS Example Update URL
+	
+	e) edit -edit ~/router/config/network_wan_up
+	   - uncomment /opt/router/scripts/ddns/ddns-ipv4-he-tunnel
+	   
+	f) reboot
+	
+That should be enough to get started
+
+list of quick scripts:
+
+~/router/action/activate.sh
+	script to copy over the temporary network interface and dhcp server config
+	files then remap symlinks
+	
+~/router/action/backup.sh
+	script that will create an archive of files installed by the script that have
+	been modified by the user.
+	
+	WARNING it will only backup files installed by the script not additional files
+	created by the user.
+	
+~/router/action/filelist.sh
+	script that will list all the file installed by the script and it identify
+	files that are missing from the system and those that have been modified
+	since installation
+	
+~/router/action/forwarding-rules.sh
+	script to reload the forwadring ipsets and regenerate the firewall
+	DNATHOSTS entries
+	
+~/router/action/restore.sh
+	script that will restore the files from the original install archive of
+	as well as the files last backed up by the user.
+	
+	WARNING it will only restore files installed by the script not additional files
+	created by the user.
+	
+~/router/action/ssh-lock.sh
+	script that will disable ssh password authentication and enable pubkey
+	authentication
+	
+	WARNING: make sure you get the ssh rsa private key ~/.ssh/root@hostname first
+	or will lock yourself out via ssh
+	
+~/router/action/ssh-reset.sh
+	script that will enable ssh password authentication and disable pubkey 
+	authentication, will delete the files fromm ~/.ssh, and will then
+	generate a new set of keys.
+	
+~/router/action/ssh-unlock.sh
+	script that will enable ssh password authentication and disable pubkey 
+	authentication.
+
+NOTE users may be interested in installing the vnstat package to monitor
+network usage. Ex. how much internet traffic this month, etc. I havent added
+it yet to the nase instal as I want to add the backups of the usage data to the
+existing script.
+
+apt install vnstat* 
