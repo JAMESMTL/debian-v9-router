@@ -17,8 +17,8 @@ echo "*nat" >> $port_forwarding_v4_nat
 # Parse IPv4 forwarding set
 while read line || [ -n "$line" ]; do
 
-	# skip blank lines and comments
-	echo $line | egrep -q '(^#|^$)' && continue
+	# skip comments
+	echo $line | egrep -q '^[[:space:]]*$|#' && continue
 
 	rule=$(echo $line | awk '{print $NF}')
 
