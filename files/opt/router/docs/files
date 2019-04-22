@@ -10,7 +10,6 @@ etc/cron.d/cron.list
     /opt/router/unbound/named.cache weekly
 
 etc/default/dnsmasq
-etc/default/miniupnpd
 etc/default/openvpn
 etc/default/wide-dhcpv6-client
 	These files contain default parameters to be used when starting the services
