@@ -71,5 +71,7 @@ netmask 255.255.255.0
 # mtu 1480
 #	up ip -6 route add default dev he-net table he-net
 #	up ip -6 rule add from 2001:db8:100::/48 table he-net
+#	up ip -6 rule add from 2001:db8:1:1::2 table he-net
+#	down ip -6 rule del from 2001:db8:1:1::2 table he-net
 #	down ip -6 rule del from 2001:db8:100::/48 table he-net
 #	down ip -6 route del default dev he-net table he-net
