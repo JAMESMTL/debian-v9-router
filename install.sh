@@ -288,7 +288,7 @@ echo
 
 # config cron symlinks
 echo -n "creating /root/router/config/cron_jobs ... "
-ln -sf /etc/cron.d/cron.list /root/router/config/cron_jobs && echo ok || echo FAILED
+ln -sf /etc/cron.d/cronjobs /root/router/config/cron_jobs && echo ok || echo FAILED
 
 # config dhcp symlinks
 echo -n "creating /root/router/config/dhcp_base ... "
