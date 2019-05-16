@@ -140,5 +140,5 @@ echo  $(cat $$.tmp | wc -l) domains blocked.
 # Delete temp file
 rm $$.tmp
 
-# Restart & preserve cache
+# Restart
 unbound-control reload &>/dev/null
