@@ -122,9 +122,6 @@ if [ ! -s $$.tmp ]; then
 	exit 1
 fi
 
-# Sort
-sort $$.tmp -o $$.tmp
-
 # Delete old adblock file
 [ -f $destfile ] && rm $destfile
 
