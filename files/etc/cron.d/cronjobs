@@ -13,3 +13,6 @@
 
 # update named.cache every week
 51 6 * * 7 root /opt/router/scripts/services/named-cache.sh &>/dev/null
+
+# update dns block list daily
+30 6 * * * root /opt/router/scripts/services/adblock &>/dev/null

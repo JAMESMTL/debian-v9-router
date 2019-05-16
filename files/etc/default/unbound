@@ -1,0 +1,6 @@
+# This is the configuration file for /etc/init.d/unbound
+
+DAEMON_OPTS="-c /opt/router/unbound/unbound.conf"
+
+# Unbound file not found protection
+touch /opt/router/unbound/unbound.adblock

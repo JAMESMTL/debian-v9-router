@@ -1,0 +1,144 @@
+#!/bin/bash
+
+# pixelserv / null route address
+redirect="0.0.0.0"
+
+# File locations
+destfile=/opt/router/unbound/unbound.adblock
+blacklist=/opt/router/adblock/blacklist
+whitelist=/opt/router/adblock/whitelist
+debuglist=
+
+# clear tmp file if exists
+echo -n > $$.tmp
+
+############################################
+# Get basic ad domain lists                #
+############################################
+
+#echo Getting yoyo ad list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 http://pgl.yoyo.org/adservers/serverlist.php?hostformat=nohtml | grep -vE '^([[:space:]]*$|#)' >> $$.tmp
+
+#echo Getting winhelp2002 ad list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 http://winhelp2002.mvps.org/hosts.txt | grep -vE '^([[:space:]]*$|#)' | awk '{print $2}' >> $$.tmp
+
+#echo Getting adaway ad list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://adaway.org/hosts.txt | grep -vE '^([[:space:]]*$|#)' | awk '{print $2}' >> $$.tmp
+
+#echo Getting someone who cares ad list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 http://someonewhocares.org/hosts/hosts | grep -vE '^([[:space:]]*$|#)' | awk '{print $2}' >> $$.tmp
+
+#echo Getting Sysctl ad list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 http://sysctl.org/cameleon/hosts | grep -vE '^([[:space:]]*$|#)' | awk '{print $2}' >> $$.tmp
+
+############################################
+# Get malware domain lists                 #
+############################################
+
+#echo Getting malwaredomainlist list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 http://www.malwaredomainlist.com/hostslist/hosts.txt | grep -vE '^([[:space:]]*$|#)' | awk '{print $2}' >> $$.tmp
+
+#echo Getting malwaredomains list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 http://mirror1.malwaredomains.com/files/justdomains | grep -vE '^([[:space:]]*$|#)' >> $$.tmp
+
+############################################
+# Get github/notracking aggregated lists   #
+############################################
+
+#echo Getting github.com/notracking/hosts-blocklists hostname list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://raw.githubusercontent.com/notracking/hosts-blocklists/master/hostnames.txt | grep -E '^0.0.0.0' | awk '{print $NF}' >> $$.tmp
+
+#echo Getting github.com/notracking/hosts-blocklists domain list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://raw.githubusercontent.com/notracking/hosts-blocklists/master/domains.txt | grep -E '0.0.0.0$' | awk -F '/' '{print $2}' >> $$.tmp
+
+############################################
+# Get github/simple-dns-adblock            #
+############################################
+# malwaredomains.com/files/justdomains see above
+# sysctl.org/cameleon/hosts see above
+
+#echo Getting StevenBlack ad list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts | grep -E '^0.0.0.0' | awk '{print $2}' >> $$.tmp
+
+#echo Getting ZeusTracker list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist | grep -vE '^([[:space:]]*$|#)' >> $$.tmp
+
+#echo Getting Disconect.me tracking list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt | grep -vE '^([[:space:]]*$|#)' >> $$.tmp
+
+#echo Getting Disconect.me ad list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt | grep -vE '^([[:space:]]*$|#)' >> $$.tmp
+
+#echo Getting hosts-file.net ad list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 http://hosts-file.net/ad_servers.txt | grep -E '^127.0.0.1' | awk '{print $NF}' >> $$.tmp
+
+#echo Getting simple-dns-adblock ad list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://raw.githubusercontent.com/wilyarti/simple-dns-adblock/master/blocklist.txt | grep -vE '^([[:space:]]*$|#)' >> $$.tmp
+
+#echo Getting gitlab/quidsup/notrack block list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-blocklist.txt | grep -vE '^([[:space:]]*$|#)' | awk '{print $1}' >> $$.tmp
+
+#echo Getting gitlab/quidsup/notrack malware list...
+#curl -sk --retry 5 --retry-delay 10 --max-time 20 https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt | grep -vE '^([[:space:]]*$|#)' | awk '{print $1}' >> $$.tmp
+
+# Add static blacklist entries if exists
+[ -s $blacklist ] && cat $blacklist >> $$.tmp
+
+# Cleanup list
+echo "Removing duplicates and formatting the list of domains..."
+
+# strip trailing CR, tab, periods + empty lines + null route
+sed -i 's/\r$//g' $$.tmp
+sed -i 's/\t$//g' $$.tmp
+sed -i 's/\.$//g' $$.tmp
+sed -i '/^$/d' $$.tmp
+sed -i '/^0\.0\.0\.0/d' $$.tmp
+
+# remove localhost etc
+sed -i "/^localhost$/d" $$.tmp
+sed -i "/^localhost\.localdomain$/d" $$.tmp
+sed -i "/^local$/d" $$.tmp
+
+# Parse Whitelist domains if exists
+if [ -s $whitelist ]; then
+	while read line || [[ -n "$line" ]]; do
+		sed -i "$line" $$.tmp
+	done < $whitelist
+fi
+
+# Remove sub domains
+rev $$.tmp | sort -t'.' -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 -k6,6 | awk 'NR!=1&&substr($0,0,length(p))==p{next}{p=$0".";print}' | rev | sort -uf > $$.tmp.sub
+mv $$.tmp.sub $$.tmp
+
+# Save domains debug
+if [ ! -z "$debuglist" ]; then
+	cp $$.tmp $debuglist
+fi
+
+# if tmp domains is empty then exit
+if [ ! -s $$.tmp ]; then
+	rm $$.tmp
+	echo No domains defined exiting...
+	exit 1
+fi
+
+# Sort
+sort $$.tmp -o $$.tmp
+
+# Delete old adblock file
+[ -f $destfile ] && rm $destfile
+
+# Parse File
+while read line || [[ -n "$line" ]]; do
+	echo "local-zone: \"${line}.\" redirect" >> $destfile
+	echo "local-data: \"${line}. A ${redirect}\"" >> $destfile
+done < $$.tmp
+
+# Count how many domains were added
+echo  $(cat $$.tmp | wc -l) domains blocked.
+
+# Delete temp file
+rm $$.tmp
+
+# Restart & preserve cache
+unbound-control reload &>/dev/null
