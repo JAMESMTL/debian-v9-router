@@ -28,7 +28,7 @@ ip route add 10.178.0.0/16 via $GATEWAY dev ppp0 2>/dev/null
 
 # WAN up commands
 /opt/router/scripts/system/forwarding-rules
-/opt/router/scripts/system/irq-affinity
+# /opt/router/scripts/system/irq-affinity
 # /opt/router/scripts/ddns/ddns-ipv4-he-tunnel
 
 # Load DNS redirection ipsets
