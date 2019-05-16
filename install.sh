@@ -307,6 +307,8 @@ ln -sf /etc/inadyn.conf /root/router/config/ddns_inadyn && echo ok || echo FAILE
 # config dns symlinks
 echo -n "creating /root/router/config/dns_base ... "
 ln -sf /opt/router/unbound/unbound.conf /root/router/config/dns_base && echo ok || echo FAILED
+echo -n "creating /root/router/config/dns_blocklists ... "
+ln -sf /opt/router/scripts/services/adblock /root/router/config/dns_blocklists && echo ok || echo FAILED
 echo -n "creating /root/router/config/dns_split_static ... "
 ln -sf /opt/router/unbound/unbound.static /root/router/config/dns_split_static && echo ok || echo FAILED
 
