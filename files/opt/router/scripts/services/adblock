@@ -138,4 +138,4 @@ echo  $(cat $$.tmp | wc -l) domains blocked.
 rm $$.tmp
 
 # Restart
-unbound-control reload &>/dev/null
+/usr/sbin/unbound-control reload &>/dev/null
