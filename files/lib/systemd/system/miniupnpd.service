@@ -5,6 +5,9 @@ After=network-online.target
 
 [Service]
 Type=forking
+ExecStartPre=/sbin/iptables -t nat -F MINIUPNPD
+ExecStartPre=/sbin/iptables -F MINIUPNPD
+ExecStartPre=/sbin/ip6tables -F MINIUPNPD
 ExecStart=/usr/sbin/miniupnpd -f /etc/miniupnpd/miniupnpd.conf
 PrivateTmp=yes
 PIDFile=/run/miniupnpd.pid
