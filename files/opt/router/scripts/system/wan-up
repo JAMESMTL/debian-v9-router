@@ -26,6 +26,10 @@ SYSVARS=/tmp/sysvars
 # Set static route
 ip route add 10.178.0.0/16 via $GATEWAY dev ppp0 2>/dev/null
 
+# Update unbound root key
+unbound-anchor -v | logger -t unbound-anchor[$$]
+chown unbound:unbound /var/lib/unbound/root.key && chmod 644 /var/lib/unbound/root.key
+
 # WAN up commands
 /opt/router/scripts/system/forwarding-rules
 # /opt/router/scripts/ddns/ddns-ipv4-he-tunnel
@@ -34,7 +38,6 @@ ip route add 10.178.0.0/16 via $GATEWAY dev ppp0 2>/dev/null
 cat /opt/router/nftables/dns_redirect_*.set | ipset restore
 
 # Restart WAN dependant services
-service dnsmasq restart
 service miniupnpd restart
 #service wide-dhcpv6-client restart
 
