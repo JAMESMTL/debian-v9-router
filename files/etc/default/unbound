@@ -1,6 +1,8 @@
 # This is the configuration file for /etc/init.d/unbound
 
 DAEMON_OPTS="-c /opt/router/unbound/unbound.conf"
+ROOT_TRUST_ANCHOR_UPDATE="false"
 
 # Unbound file not found protection
 touch /opt/router/unbound/unbound.adblock
+touch /opt/router/unbound/unbound.iptv

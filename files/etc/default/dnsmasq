@@ -34,4 +34,3 @@ IGNORE_RESOLVCONF=yes
 
 # Create files for lan0, wan0.36 failover
 touch /tmp/dnsmasq.router
-touch /tmp/dnsmasq.iptv

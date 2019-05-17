@@ -42,7 +42,6 @@ quiet-dhcp6
 no-resolv
 
 # Config Files
-conf-file=/tmp/dnsmasq.iptv
 conf-file=/tmp/dnsmasq.router
 dhcp-hostsfile=/opt/router/dnsmasq/dnsmasq.hosts
 dhcp-leasefile=/opt/router/dnsmasq/dnsmasq.leases
