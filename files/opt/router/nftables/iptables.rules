@@ -17,6 +17,7 @@ COMMIT
 :OUTPUT ACCEPT [0:0]
 :DNATHOSTS - [0:0]
 :MINIUPNPD - [0:0]
+:MINIUPNPD-POSTROUTING - [0:0]
 -A PREROUTING ! -d 10.0.0.0/8 -p udp --dport 53 -m set --match-set DNS-LOCAL-V4 src -j REDIRECT --to-port 53
 -A PREROUTING ! -d 10.0.0.0/8 -p tcp --dport 53 -m set --match-set DNS-LOCAL-V4 src -j REDIRECT --to-port 53
 -A PREROUTING -i ppp+ -j DNATHOSTS
