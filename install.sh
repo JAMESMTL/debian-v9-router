@@ -83,7 +83,7 @@ echo
 
 apt install -y vlan bridge-utils net-tools ppp ipset traceroute nmap conntrack \
 	ndisc6 whois dnsutils mtr iperf3 curl resolvconf sudo apt-transport-https \
-	tcpdump ethtool firmware-bnx2x
+	tcpdump ethtool irqbalance firmware-bnx2x
 
 # Detect hypervisor 
 if grep -q hypervisor /proc/cpuinfo; then
@@ -190,6 +190,8 @@ dpkg-deb -x /opt/router/install/miniupnpd_2.1-5_amd64.deb /tmp/miniupnpd
 cp /tmp/miniupnpd/usr/sbin/miniupnpd /usr/sbin
 
 echo "cleaning up the mess ..."
+echo -n "rm /etc/default/miniupnpd ... "
+rm /etc/default/miniupnpd && echo ok || echo FAILED
 echo -n "rm /etc/init.d/miniupnpd ... "
 rm /etc/init.d/miniupnpd && echo ok || echo FAILED
 echo -n "rm /etc/miniupnpd/* ... "
@@ -353,6 +355,8 @@ ln -sf /etc/default/openvpn /root/router/config/openvpn_defaults && echo ok || e
 # actions symlinks
 echo -n "creating /root/router/action/activate.sh ... "
 ln -sf /opt/router/scripts/system/activate /root/router/action/activate.sh && echo ok || echo FAILED
+echo -n "creating /root/router/action/adblock.sh ... "
+ln -sf /opt/router/scripts/services/adblock /root/router/action/adblock.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/backup.sh ... "
 ln -sf /opt/router/scripts/system/backup /root/router/action/backup.sh && echo ok || echo FAILED
 echo -n "creating /root/router/action/filelist.sh ... "
@@ -466,13 +470,10 @@ echo -n "Removing miniupnpd init... "
 update-rc.d miniupnpd remove && echo "ok" || echo "FAILED"
 echo -n "disabling autostart of wide-dhcpv6-client ... "
 update-rc.d wide-dhcpv6-client disable && echo "ok" || echo "FAILED"
-echo -n "reloading daemon configs ... "
-systemctl daemon-reload  && echo "ok" || echo "FAILED"
-
 echo -n "unmasking miniupnpd ... "
 systemctl unmask miniupnpd && echo "ok" || echo "FAILED"
-echo "enabling miniupnpd ... "
-systemctl enable miniupnpd
+echo -n "reloading daemon configs ... "
+systemctl daemon-reload  && echo "ok" || echo "FAILED"
 
 echo
 echo "######################################"
