@@ -97,8 +97,13 @@ case "$interface" in
 			echo >> $IPTV_ZONE_FILE
 		done		
 
-		# Restart igmpproxy
-		service igmpproxy restart
+		# Restart unbound if name servers change
+		# [ "$new_domain_name_servers" != "$old_domain_name_servers" ] && service unbound restart
+		
+		# Restart igmpproxy if vlan 36 IP or gateway changes
+		if [ "$new_ip_address" !=  "$old_ip_address" ] || [ "$new_routers" != "$old_routers" ]; then
+			service igmpproxy restart
+		fi
 		;;
          
 	*)

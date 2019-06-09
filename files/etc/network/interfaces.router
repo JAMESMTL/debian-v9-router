@@ -20,6 +20,7 @@ iface wan0 inet manual
 	pre-up iptables-restore /opt/router/nftables/iptables.rules
 	pre-up ip6tables-restore /opt/router/nftables/ip6tables.rules
 	pre-up ifconfig wan0 mtu 1508
+	pre-up ethtool -K wan0 lro off tso off gso off 2>/dev/null
 	pre-up echo 1 > /proc/sys/net/ipv6/conf/wan0/disable_ipv6
 
 # WAN internet interface pppoe (vlan 35)
@@ -46,6 +47,7 @@ netmask 255.255.255.0
 # iface lan0 inet6 static
 # address 2001:db8:100:1::1
 # netmask 64
+	pre-up ethtool -K lan0 lro off tso off gso off 2>/dev/null
 	up /opt/router/scripts/services/dnsmasq-router
 #	up ip -6 route add 2001:db8:100:1::/64 dev lan0 table he-net
 #	down ip -6 route del 2001:db8:100:1::/64 dev lan0 table he-net

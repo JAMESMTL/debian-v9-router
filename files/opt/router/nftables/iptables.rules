@@ -8,6 +8,8 @@ COMMIT
 *mangle
 :PREROUTING ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
+:MINIUPNPD - [0:0]
+-A PREROUTING -i ppp+ -j MINIUPNPD
 -A INPUT -i wan0.36 -s 10.2.0.0/16 -d 239.0.0.0/8 -p udp -j DROP
 -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 COMMIT
@@ -22,6 +24,7 @@ COMMIT
 -A PREROUTING ! -d 10.0.0.0/8 -p tcp --dport 53 -m set --match-set DNS-LOCAL-V4 src -j REDIRECT --to-port 53
 -A PREROUTING -i ppp+ -j DNATHOSTS
 -A PREROUTING -i ppp+ -j MINIUPNPD
+-A POSTROUTING -o ppp+ -j MINIUPNPD-POSTROUTING
 -A POSTROUTING -o ppp+ -j MASQUERADE
 -A POSTROUTING -o ovpn+ -j MASQUERADE
 -A POSTROUTING -o wan0.36 -j MASQUERADE
