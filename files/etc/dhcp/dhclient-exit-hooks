@@ -62,8 +62,7 @@ cdr2mask ()
 IPTV_ZONE_FILE=/opt/router/unbound/unbound.iptv
 
 forwardZones=" \
-	bell.ca \
-	bell.com \
+	iptv.bell.ca \
 	iptv.microsoft.com \
 "
 
